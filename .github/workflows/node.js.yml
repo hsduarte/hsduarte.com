@@ -36,5 +36,10 @@ jobs:
           npm install
           npm run build --if-present
 
+      - name: test
+        shell: bash
+        run: |
+          ls -la
+
       - name: Start the server
-        run: node dist/hs-duarte/server/main.server.js
+        run: node dist/server/main.js
