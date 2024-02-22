@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           npm install
-          npm run build:ssr --if-present
+          npm run build --if-present
 
       - name: Start the server
         run: npm run serve:ssr:HsDuarte
