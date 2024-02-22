@@ -42,4 +42,4 @@ jobs:
           ls -la
 
       - name: Start the server
-        run: node dist/server/main.js
+        run: node ./dist/server/main.js
