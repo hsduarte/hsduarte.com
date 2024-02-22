@@ -19,11 +19,22 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+        name: Check out repository code
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v3
+        name: Use Node.js ${{ matrix.node-version }}
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm install
-      - run: npm run build --if-present
+
+      - name: Build
+        shell: bash
+        run: |
+          npm install
+          npm run build --if-present
+
+      - name: Start the server
+        run: node dist/hs-duarte/server/main.server.js
