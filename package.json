@@ -5,10 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "build:ssr": "ng build:ssr",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:HsDuarte": "node dist/hs-duarte/server/server.mjs"
+    "serve:ssr:HsDuarte": "node dist/hs-duarte/server/server.mjs",
+    "deploy": "ng build && ngh --dir=dist/hs-duarte"
   },
   "private": true,
   "dependencies": {
