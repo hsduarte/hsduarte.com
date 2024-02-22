@@ -34,12 +34,7 @@ jobs:
         shell: bash
         run: |
           npm install
-          npm run build --if-present
-
-      - name: test
-        shell: bash
-        run: |
-          ls -la
+          npm run build:ssr --if-present
 
       - name: Start the server
-        run: node ./dist/server/main.js
+        run: npm run serve:ssr:HsDuarte
