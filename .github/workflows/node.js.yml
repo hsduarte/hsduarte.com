@@ -25,6 +25,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Git identity
+        run: |
+          git config --global user.email "hugo.sancho.duarte@gmail.com"
+          git config --global user.name "Hugo Duarte"
+
       - uses: actions/setup-node@v3
         name: Use Node.js ${{ matrix.node-version }}
         with:
