@@ -117,6 +117,12 @@
       width: max-content;
     }
 
+    &__content h1 {
+      margin-top: 1rem;
+      font-size: 2rem;
+      margin-bottom: 0.1rem;
+    }
+
     &__divider {
       height: 1px;
       width: 100%;
