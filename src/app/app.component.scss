@@ -184,8 +184,8 @@
   }
 
   @media (max-width: 768px) {
-    min-height: calc(100vh - 5rem);
-    padding: 2rem 0 6rem 0;
+    height: 100vh;
+    padding: 2rem 0;
     
     &__content {
       grid-template-columns: 1fr;
@@ -212,7 +212,7 @@
     }
 
     &__scroll-indicator {
-      bottom: 8rem;
+      bottom: 6rem;
       
       svg {
         width: 28px;
@@ -223,7 +223,7 @@
 
   @media (max-width: 480px) {
     &__scroll-indicator {
-      bottom: 5rem;
+      bottom: 4rem;
     }
   }
 }
