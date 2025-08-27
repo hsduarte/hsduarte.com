@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.18]
+        node-version: [22.12]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -32,7 +32,7 @@ jobs:
           git config --global user.email "hugo.sancho.duarte@gmail.com"
           git config --global user.name "Hugo Duarte"
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         name: Use Node.js ${{ matrix.node-version }}
         with:
           node-version: ${{ matrix.node-version }}
