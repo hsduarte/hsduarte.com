@@ -212,12 +212,18 @@
     }
 
     &__scroll-indicator {
-      bottom: 12rem;
+      bottom: 8rem;
       
       svg {
         width: 28px;
         height: 28px;
       }
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__scroll-indicator {
+      bottom: 5rem;
     }
   }
 }

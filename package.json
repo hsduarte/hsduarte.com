@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:HsDuarte": "node dist/hs-duarte/server/server.mjs",
-    "deploy": "ng build && ngh --no-silent --dir=dist/hs-duarte/browser/"
+    "deploy": "ng build && ngh --no-silent --dir=dist/hs-duarte/browser/ --cname=hsduarte.com"
   },
   "private": true,
   "dependencies": {
