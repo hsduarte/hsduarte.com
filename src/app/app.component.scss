@@ -267,6 +267,7 @@
       border-radius: 50%;
       background: var(--primary-main);
       box-shadow: 0 0 0 4px var(--white);
+      transform: translateX(0.08rem);
     }
 
     &-content {
