@@ -44,4 +44,4 @@ jobs:
       - name: Build and Deploy
         run: npm run deploy
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY__TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEPLOY__TOKEN }}
