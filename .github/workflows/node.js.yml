@@ -13,6 +13,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     strategy:
       matrix:
@@ -44,4 +46,4 @@ jobs:
       - name: Build and Deploy
         run: npm run deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.DEPLOY__TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
