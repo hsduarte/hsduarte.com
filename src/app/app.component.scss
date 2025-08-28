@@ -17,7 +17,6 @@
   --gray-100: #f1f5f9;
   --white: #ffffff;
 
-
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol";
@@ -25,6 +24,61 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+}
+
+// Dark theme variables
+:host-context(.dark-theme) {
+  --gray-900: #f1f5f9;
+  --gray-800: #e2e8f0;
+  --gray-700: #cbd5e1;
+  --gray-600: #94a3b8;
+  --gray-400: #64748b;
+  --gray-300: #475569;
+  --gray-100: #1e293b;
+  --white: #0f172a;
+  --primary-main: #4a90b8;
+  --accent-blue: #38bdf8;
+}
+
+// Dark Mode Toggle Button
+.dark-mode-toggle {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--gray-700);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    color: var(--accent-blue);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    top: 1rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .container {
