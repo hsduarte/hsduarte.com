@@ -1,5 +1,11 @@
 <!-- Hero Section -->
 <section class="hero">
+  <!-- Logo -->
+  <div class="logo-container">
+    <img *ngIf="!isDarkMode" src="assets/Logo/HsDNoBackBlue.png" alt="HSD Logo" class="site-logo">
+    <img *ngIf="isDarkMode" src="assets/Logo/HsDNoBackWhite.png" alt="HSD Logo" class="site-logo">
+  </div>
+
   <!-- Controls Container -->
   <div class="controls-container">
     <!-- Language Toggle -->
