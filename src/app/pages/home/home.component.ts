@@ -1,5 +1,7 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ThemeService } from '../../services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +9,10 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   currentLanguage = 'en';
+  private themeSubscription: Subscription = new Subscription();
 
   // Translation dictionary
   translations: { [key: string]: { [key: string]: string } } = {
@@ -93,19 +96,26 @@ export class HomeComponent implements OnInit {
     }
   };
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private themeService: ThemeService
+  ) {}
 
   ngOnInit() {
+    // Subscribe to theme changes
+    this.themeSubscription = this.themeService.isDarkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
+    
     if (isPlatformBrowser(this.platformId)) {
-      // Load saved theme preference or default to light mode
-      const savedTheme = localStorage.getItem('theme');
-      this.isDarkMode = savedTheme === 'dark';
-      this.applyTheme();
-      
       // Load saved language preference or default to English
       const savedLanguage = localStorage.getItem('language');
       this.currentLanguage = savedLanguage || 'en';
     }
+  }
+
+  ngOnDestroy() {
+    this.themeSubscription.unsubscribe();
   }
 
   // Helper method to get translated text
@@ -153,11 +163,7 @@ export class HomeComponent implements OnInit {
   get stanfordDescription() { return this.t('stanfordDescription'); }
 
   toggleDarkMode() {
-    this.isDarkMode = !this.isDarkMode;
-    this.applyTheme();
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    }
+    this.themeService.toggleDarkMode();
   }
 
   toggleLanguage() {
@@ -182,16 +188,6 @@ export class HomeComponent implements OnInit {
     return this.currentLanguage === 'en' ? 'Switch to Portuguese' : 'Switch to English';
   }
 
-  private applyTheme() {
-    if (isPlatformBrowser(this.platformId)) {
-      const body = document.body;
-      if (this.isDarkMode) {
-        body.classList.add('dark-theme');
-      } else {
-        body.classList.remove('dark-theme');
-      }
-    }
-  }
 
   scrollToExperience() {
     const experienceSection = document.getElementById('experience');

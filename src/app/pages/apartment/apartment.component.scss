@@ -1,9 +1,134 @@
 /* Modern Apartment Page Styles */
 .modern-apartment-page {
+  position: relative;
   min-height: 100vh;
   background: #ffffff;
   color: #1a1a1a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* CSS Variables for consistent styling */
+:host {
+  --primary-dark: #1a365d;
+  --primary-main: #2d5a87;
+  --primary-light: #4a90b8;
+  --accent-blue: #0ea5e9;
+  --accent-teal: #0891b2;
+  --accent-indigo: #6366f1;
+  // Neutral grays
+  --gray-900: #0f172a;
+  --gray-800: #1e293b;
+  --gray-700: #334155;
+  --gray-600: #475569;
+  --gray-400: #94a3b8;
+  --gray-300: #cbd5e1;
+  --gray-100: #f1f5f9;
+  --white: #ffffff;
+}
+
+// Dark theme variables
+:host-context(.dark-theme) {
+  --gray-900: #f1f5f9;
+  --gray-800: #e2e8f0;
+  --gray-700: #cbd5e1;
+  --gray-600: #94a3b8;
+  --gray-400: #64748b;
+  --gray-300: #475569;
+  --gray-100: #1e293b;
+  --white: #0f172a;
+  --primary-main: #4a90b8;
+  --accent-blue: #38bdf8;
+}
+
+// Controls Container
+.controls-container {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  @media (max-width: 768px) {
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+// Language Toggle Button
+.language-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--gray-700);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    color: var(--accent-blue);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .language-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    
+    .language-text {
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Dark Mode Toggle Button
+.dark-mode-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--gray-700);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    color: var(--accent-blue);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* Hero Section */
@@ -332,7 +457,8 @@
       opacity: 1;
     }
 
-    img {
+    .thumbnail-image,
+    .full-image {
       transform: scale(1.1);
     }
   }
@@ -359,11 +485,42 @@
     }
   }
 
-  img {
+  .image-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #f1f5f9;
+  }
+
+  .thumbnail-image,
+  .full-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: opacity 0.3s ease, transform 0.4s ease;
+  }
+
+  .thumbnail-image {
+    filter: blur(2px);
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .full-image {
+    opacity: 0;
+    z-index: 2;
+    
+    &.loaded {
+      opacity: 1;
+    }
+  }
+
+  .thumbnail-image.loaded {
+    filter: none;
   }
 
   .gallery-overlay {
@@ -503,6 +660,7 @@
 .contact-section {
   display: flex;
   align-items: flex-start;
+  margin-top: 7rem;
 }
 
 .contact-card {
@@ -686,10 +844,45 @@
   background: #000;
 }
 
+.lightbox-image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
 .lightbox-image {
   max-width: 100%;
   max-height: 70vh;
   object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1rem;
+  z-index: 1;
+  
+  &::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .lightbox-nav {
@@ -760,10 +953,48 @@
 }
 
 /* Dark mode support */
-:global(.dark-theme) {
-  .modern-apartment-page {
-    background: #0f172a;
+.modern-apartment-page.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+
+
+  .hero-section {
+    background: #1e293b;
+  }
+
+  .hero-background {
+    display: none;
+  }
+
+  .hero-title,
+  .hero-location {
     color: #f1f5f9;
+  }
+
+  .modern-gallery {
+    background: #0f172a;
+  }
+
+  .gallery-header {
+    h2 {
+      color: #f1f5f9;
+    }
+
+    p {
+      color: #94a3b8;
+    }
+  }
+
+  .gallery-item {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .image-container {
+      background: #1e293b;
+    }
   }
 
   .info-cards-section,
@@ -771,14 +1002,53 @@
     background: #1e293b;
   }
 
+  .features-content {
+    h2 {
+      color: #f1f5f9;
+    }
+
+    .section-description {
+      color: #94a3b8;
+    }
+  }
+
+  .feature-item {
+    h4 {
+      color: #f1f5f9;
+    }
+
+    p {
+      color: #94a3b8;
+    }
+  }
+
   .info-card,
   .contact-card {
     background: #334155;
     border-color: #475569;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .contact-header {
+    h3 {
+      color: #f1f5f9;
+    }
+
+    p {
+      color: #94a3b8;
+    }
   }
 
   .contact-item {
     background: #475569;
+
+    span {
+      color: #f1f5f9;
+    }
+
+    svg {
+      color: #94a3b8;
+    }
   }
 
   .lightbox-content {
@@ -789,6 +1059,37 @@
   .lightbox-footer {
     background: #475569;
     border-color: #64748b;
+
+    .lightbox-title {
+      color: #f1f5f9;
+    }
+
+    .lightbox-counter {
+      color: #94a3b8;
+    }
+  }
+
+  .lightbox-close {
+    background: #64748b;
+    color: #f1f5f9;
+
+    &:hover {
+      background: #94a3b8;
+      color: #0f172a;
+    }
+  }
+
+  .lightbox-nav {
+    background: rgba(51, 65, 85, 0.9);
+    color: #f1f5f9;
+
+    &:hover:not(:disabled) {
+      background: rgba(51, 65, 85, 1);
+    }
+  }
+
+  .loading-spinner {
+    color: #f1f5f9;
   }
 }
 

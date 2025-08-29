@@ -1,5 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ThemeService } from '../../services/theme.service';
+import { Subscription } from 'rxjs';
 
 interface ApartmentImage {
   src: string;
@@ -18,20 +20,48 @@ export class ApartmentComponent implements OnInit, OnDestroy {
   selectedImage: ApartmentImage | null = null;
   showGallery = false;
   currentImageIndex = 0;
+  imageLoaded: boolean[] = [];
+  fullImageLoaded: boolean[] = [];
+  shouldLoadFullImage: boolean[] = [];
+  lightboxImageLoading = true;
+  isDarkMode = false;
+  currentLanguage = 'en';
   
   private componentId = Math.random().toString(36).substr(2, 9);
+  private intersectionObserver: IntersectionObserver | null = null;
+  private themeSubscription: Subscription = new Subscription();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private themeService: ThemeService
+  ) {
     console.log('ApartmentComponent constructor called with ID:', this.componentId);
   }
 
   ngOnInit() {
     console.log('ApartmentComponent ngOnInit called for ID:', this.componentId);
+    
+    // Subscribe to theme changes
+    this.themeSubscription = this.themeService.isDarkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
+    
+    if (isPlatformBrowser(this.platformId)) {
+      // Load saved language preference or default to English
+      const savedLanguage = localStorage.getItem('language');
+      this.currentLanguage = savedLanguage || 'en';
+    }
+    
     this.loadApartmentImages();
+    this.setupIntersectionObserver();
   }
 
   ngOnDestroy() {
     console.log('ApartmentComponent ngOnDestroy called for ID:', this.componentId);
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+    this.themeSubscription.unsubscribe();
   }
 
   loadApartmentImages() {
@@ -55,6 +85,14 @@ export class ApartmentComponent implements OnInit, OnDestroy {
         alt: `Apartment ${name.split('.')[0].replace('-', ' ')}`,
         thumbnail: `assets/apartment/thumbs/${name}`
       }));
+      
+      // Initialize loading states
+      this.imageLoaded = new Array(this.images.length).fill(false);
+      this.fullImageLoaded = new Array(this.images.length).fill(false);
+      this.shouldLoadFullImage = new Array(this.images.length).fill(false);
+      
+      // Preload first few thumbnails
+      this.preloadImages(0, Math.min(3, this.images.length));
     }
   }
 
@@ -62,10 +100,14 @@ export class ApartmentComponent implements OnInit, OnDestroy {
     this.selectedImage = image;
     this.currentImageIndex = this.images.indexOf(image);
     this.showGallery = true;
+    this.lightboxImageLoading = true;
     
     if (isPlatformBrowser(this.platformId)) {
       document.body.style.overflow = 'hidden';
     }
+    
+    // Preload adjacent images
+    this.preloadAdjacentImages();
   }
 
   closeGallery() {
@@ -105,5 +147,80 @@ export class ApartmentComponent implements OnInit, OnDestroy {
           break;
       }
     }
+  }
+
+  toggleDarkMode() {
+    this.themeService.toggleDarkMode();
+  }
+
+  toggleLanguage() {
+    // Cycle between languages
+    this.currentLanguage = this.currentLanguage === 'en' ? 'pt' : 'en';
+    
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('language', this.currentLanguage);
+    }
+  }
+
+  getText(en: string, pt: string): string {
+    return this.currentLanguage === 'pt' ? pt : en;
+  }
+
+  // Getter for the language button text
+  get languageButtonText(): string {
+    return this.currentLanguage === 'en' ? 'PT' : 'EN';
+  }
+
+  // Getter for accessibility label
+  get languageAriaLabel(): string {
+    return this.currentLanguage === 'en' ? 'Switch to Portuguese' : 'Switch to English';
+  }
+
+  private setupIntersectionObserver() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.getAttribute('data-index') || '0', 10);
+          this.shouldLoadFullImage[index] = true;
+        }
+      });
+    }, { rootMargin: '100px' });
+  }
+
+  onImageLoad(index: number) {
+    this.imageLoaded[index] = true;
+  }
+
+  onFullImageLoad(index: number) {
+    this.fullImageLoaded[index] = true;
+  }
+
+  onLightboxImageLoad() {
+    this.lightboxImageLoading = false;
+  }
+
+  private preloadImages(start: number, end: number) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    for (let i = start; i < end && i < this.images.length; i++) {
+      const img = new Image();
+      img.src = this.images[i].thumbnail;
+    }
+  }
+
+  private preloadAdjacentImages() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    const preloadIndices = [
+      this.currentImageIndex - 1,
+      this.currentImageIndex + 1
+    ].filter(index => index >= 0 && index < this.images.length);
+    
+    preloadIndices.forEach(index => {
+      const img = new Image();
+      img.src = this.images[index].src;
+    });
   }
 }
