@@ -1,27 +1,122 @@
-# HsDuarte
+<div align="center">
+  <h1>🚀 Hugo Duarte - Personal Portfolio</h1>
+  <p><em>A modern, responsive portfolio showcasing Full-Stack development expertise</em></p>
+  
+  ![Angular](https://img.shields.io/badge/Angular-20.2-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+  ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
+  ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-222222?style=for-the-badge&logo=github&logoColor=white)
+</div>
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.1.
+---
 
-## Development server
+## ✨ Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+<table>
+<tr>
+<td width="50%">
 
-## Code scaffolding
+### 🎨 **Design & UX**
+- 📱 **Responsive Design** - Perfect on all devices
+- 🌓 **Smart Theming** - Auto system detection + manual toggle
+- 🎯 **Modern UI** - Clean, professional design
+- ⚡ **Smooth Animations** - Polished user experience
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+</td>
+<td width="50%">
 
-## Build
+### 🌍 **Functionality**
+- 🗣️ **Bilingual Support** - English/Portuguese with persistence
+- 🏷️ **Theme-Aware Branding** - Dynamic logo switching
+- 🚀 **Performance Optimized** - Lazy loading & standalone components
+- 🔗 **Smart Routing** - 404 redirects to home
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+</td>
+</tr>
+</table>
 
-## Running unit tests
+## 🛠️ Tech Stack
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+<div align="center">
 
-## Running end-to-end tests
+| Category | Technologies |
+|----------|-------------|
+| **Frontend Framework** | ![Angular](https://img.shields.io/badge/-Angular%2020-DD0031?logo=angular&logoColor=white) |
+| **Language** | ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white) |
+| **Styling** | ![SCSS](https://img.shields.io/badge/-SCSS-CC6699?logo=sass&logoColor=white) ![CSS3](https://img.shields.io/badge/-CSS3-1572B6?logo=css3&logoColor=white) |
+| **Icons** | ![Material Design](https://img.shields.io/badge/-Material%20Symbols-757575?logo=material-design&logoColor=white) |
+| **Build Tools** | ![Angular CLI](https://img.shields.io/badge/-Angular%20CLI-DD0031?logo=angular&logoColor=white) |
+| **Deployment** | ![GitHub Pages](https://img.shields.io/badge/-GitHub%20Pages-222222?logo=github&logoColor=white) |
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+</div>
 
-## Further help
+## 🚀 Getting Started
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
+
+### 💻 Development
+
+```bash
+# Start development server
+npx ng serve
+```
+Navigate to `http://localhost:4200/` - the app auto-reloads on file changes! ⚡
+
+### 🔧 Available Commands
+
+<table>
+<tr>
+<td width="50%">
+
+#### **Development**
+```bash
+# Development server
+npx ng serve
+
+# Watch mode build
+npx ng build --watch
+```
+
+</td>
+<td width="50%">
+
+#### **Production**
+```bash
+# Production build
+npx ng build
+
+# Run tests
+npx ng test
+```
+
+</td>
+</tr>
+</table>
+
+### 🎯 Code Generation
+
+```bash
+# Generate new component
+npx ng generate component component-name
+
+# Generate service/directive/pipe
+npx ng generate service|directive|pipe name
+```
+
+---
+
+<div align="center">
+
+### 📚 **Resources**
+
+[![Angular CLI](https://img.shields.io/badge/Angular%20CLI-Docs-DD0031?logo=angular&logoColor=white)](https://angular.io/cli)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Docs-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/docs/)
+[![SCSS](https://img.shields.io/badge/SCSS-Guide-CC6699?logo=sass&logoColor=white)](https://sass-lang.com/guide)
+
+---
+
+**Built with ❤️ using Angular 20.2.0**
+
+</div>
