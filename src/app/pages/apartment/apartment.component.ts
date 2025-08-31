@@ -1,5 +1,6 @@
-import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { Subscription } from 'rxjs';
 
@@ -33,13 +34,11 @@ export class ApartmentComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private themeService: ThemeService
-  ) {
-    console.log('ApartmentComponent constructor called with ID:', this.componentId);
-  }
+    private themeService: ThemeService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
-    console.log('ApartmentComponent ngOnInit called for ID:', this.componentId);
     
     // Subscribe to theme changes
     this.themeSubscription = this.themeService.isDarkMode$.subscribe(isDark => {
@@ -57,7 +56,6 @@ export class ApartmentComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('ApartmentComponent ngOnDestroy called for ID:', this.componentId);
     if (this.intersectionObserver) {
       this.intersectionObserver.disconnect();
     }
@@ -123,6 +121,8 @@ export class ApartmentComponent implements OnInit, OnDestroy {
     if (this.currentImageIndex < this.images.length - 1) {
       this.currentImageIndex++;
       this.selectedImage = this.images[this.currentImageIndex];
+      this.lightboxImageLoading = true;
+      this.preloadAdjacentImages();
     }
   }
 
@@ -130,20 +130,36 @@ export class ApartmentComponent implements OnInit, OnDestroy {
     if (this.currentImageIndex > 0) {
       this.currentImageIndex--;
       this.selectedImage = this.images[this.currentImageIndex];
+      this.lightboxImageLoading = true;
+      this.preloadAdjacentImages();
     }
   }
 
+  onNextClick(event: Event) {
+    event.stopPropagation();
+    this.nextImage();
+  }
+
+  onPreviousClick(event: Event) {
+    event.stopPropagation();
+    this.previousImage();
+  }
+
+  @HostListener('document:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (this.showGallery) {
       switch (event.key) {
         case 'Escape':
           this.closeGallery();
+          event.preventDefault();
           break;
         case 'ArrowLeft':
           this.previousImage();
+          event.preventDefault();
           break;
         case 'ArrowRight':
           this.nextImage();
+          event.preventDefault();
           break;
       }
     }
@@ -175,6 +191,7 @@ export class ApartmentComponent implements OnInit, OnDestroy {
   get languageAriaLabel(): string {
     return this.currentLanguage === 'en' ? 'Switch to Portuguese' : 'Switch to English';
   }
+
 
   private setupIntersectionObserver() {
     if (!isPlatformBrowser(this.platformId)) return;
