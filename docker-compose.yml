@@ -23,7 +23,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro  # Para certificados SSL
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificados Let's Encrypt
     depends_on:
       - hsduarte-web
     networks:
