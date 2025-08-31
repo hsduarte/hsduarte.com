@@ -8,7 +8,14 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:HsDuarte": "node dist/hs-duarte/server/server.mjs",
-    "deploy": "ng build && ngh --no-silent --dir=dist/hs-duarte/browser/ --cname=hsduarte.com"
+    "deploy": "ng build && ngh --no-silent --dir=dist/hs-duarte/browser/ --cname=hsduarte.com",
+    "build:prod": "ng build --configuration=production",
+    "docker:build": "docker build -t hsduarte-website .",
+    "docker:run": "docker run -p 4000:4000 hsduarte-website",
+    "docker:compose:up": "docker-compose up -d",
+    "docker:compose:down": "docker-compose down",
+    "deploy:hetzner": "./deploy.sh",
+    "setup:server": "./setup-server.sh"
   },
   "private": true,
   "dependencies": {
