@@ -1,6 +1,7 @@
 services:
   hsduarte-web:
-    build: .
+    build:
+      context: .
       target: runtime-prebuilt
     container_name: hsduarte-website-${APP_PORT:-4000}
     restart: unless-stopped

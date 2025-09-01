@@ -86,14 +86,10 @@ jobs:
           echo -e "${GREEN}[INFO]${NC} Extracting files..."
           sudo tar -xzf /tmp/hsduarte-deploy.tar.gz
           
-          # Stop existing containers
-          echo -e "${YELLOW}[INFO]${NC} Stopping existing services..."
-          if [ -f docker-compose.yml ]; then
-            sudo docker-compose down || true
-          fi
+          # Do not stop current instance; we will start a new one on alternate port for zero downtime
           
           # Determine current upstream port from nginx
-          CUR_PORT=$(grep -R "proxy_pass http://127.0.0.1:" -ho /etc/nginx/sites-enabled /etc/nginx/sites-available 2>/dev/null | head -n1 | sed -E 's/.*:(\d+).*/\1/' || echo 4000)
+          CUR_PORT=$(grep -RhoE "proxy_pass http://127\.0\.0\.1:[0-9]+" /etc/nginx/sites-enabled /etc/nginx/sites-available 2>/dev/null | head -n1 | sed -E 's/.*:([0-9]+)/\1/' || echo 4000)
           if [ -z "$CUR_PORT" ]; then CUR_PORT=4000; fi
           if [ "$CUR_PORT" = "4000" ]; then NEXT_PORT=4001; else NEXT_PORT=4000; fi
           echo -e "${GREEN}[INFO]${NC} Current port: $CUR_PORT, Next port: $NEXT_PORT"
