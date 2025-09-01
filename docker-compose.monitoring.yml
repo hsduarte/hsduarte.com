@@ -7,6 +7,12 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/data/prometheus:/prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   grafana:
     image: grafana/grafana-oss:latest
@@ -15,11 +21,32 @@ services:
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-ChangeMe123!}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false
     volumes:
       - ./monitoring/data/grafana:/var/lib/grafana
       - ./monitoring/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./monitoring/dashboards:/var/lib/grafana/dashboards
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  grafana-setup:
+    image: curlimages/curl:latest
+    container_name: grafana-setup
+    network_mode: host
+    depends_on:
+      grafana:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    volumes:
+      - ./monitoring/setup-grafana.sh:/setup-grafana.sh:ro
+    command: ["sh", "/setup-grafana.sh"]
+    restart: "no"
 
