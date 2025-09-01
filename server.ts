@@ -3,7 +3,6 @@ import { CommonEngine } from '@angular/ssr/node';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import fastifyHelmet from '@fastify/helmet';
-import fastifyCompress from '@fastify/compress';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -88,9 +87,6 @@ export function app() {
 
   // Security headers (basic). CSP off by default to avoid blocking inline styles/scripts; can be enabled later with nonces.
   fastify.register(fastifyHelmet, { contentSecurityPolicy: false });
-
-  // Compression (brotli + gzip)
-  fastify.register(fastifyCompress, { global: true, encodings: ['br', 'gzip'] });
 
   // Lightweight health endpoint for container and external monitors
   fastify.get('/_health', async (_request, reply) => {
