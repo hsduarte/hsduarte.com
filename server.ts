@@ -2,7 +2,6 @@ import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr/node';
 import Fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
-import fastifyHelmet from '@fastify/helmet';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -85,8 +84,19 @@ export function app() {
     } catch {}
   });
 
-  // Security headers (basic). CSP off by default to avoid blocking inline styles/scripts; can be enabled later with nonces.
-  fastify.register(fastifyHelmet, { contentSecurityPolicy: false });
+  // Optional plugins: helmet and compress (dynamically loaded)
+  let Helmet: any = null;
+  let Compress: any = null;
+  try { Helmet = require('@fastify/helmet'); } catch {}
+  try { Compress = require('@fastify/compress'); } catch {}
+  if (Helmet) {
+    // Security headers (basic). CSP off by default; enable with nonces later
+    fastify.register(Helmet, { contentSecurityPolicy: false });
+  }
+  if (Compress) {
+    // Compression (brotli + gzip)
+    fastify.register(Compress, { global: true, encodings: ['br', 'gzip'] });
+  }
 
   // Lightweight health endpoint for container and external monitors
   fastify.get('/_health', async (_request, reply) => {
