@@ -160,9 +160,9 @@ jobs:
         SERVER_URL: ${{ github.server_url }}
         DEPLOY_START: ${{ env.DEPLOY_START }}
       run: |
-        echo "🚀 Deployment completed!"
-        echo "🌐 Site: https://hsduarte.com"
-        
+        # Ensure jq is available for robust JSON building
+        command -v jq >/dev/null 2>&1 || { sudo apt-get update -y && sudo apt-get install -y jq; }
+
         if [ -z "$DISCORD_WEBHOOK" ]; then
           echo "No Discord webhook configured; skipping notification."
           exit 0
@@ -189,24 +189,25 @@ jobs:
         DURATION="${DUR_MIN}m ${DUR_SEC}s"
         RUN_URL="$SERVER_URL/$REPO/actions/runs/$RUN_ID"
 
-        read -r -d '' PAYLOAD <<JSON || true
-        {
-          "embeds": [
-            {
-              "title": "$TITLE",
-              "description": "$DESC",
-              "color": $COLOR,
-              "timestamp": "$TIMESTAMP",
-              "fields": [
-                {"name": "Repository", "value": "$REPO", "inline": true},
-                {"name": "Branch", "value": "${BRANCH}", "inline": true},
-                {"name": "Commit", "value": "$SHORT_SHA", "inline": true},
-                {"name": "Actor", "value": "$ACTOR", "inline": true},
-                {"name": "URL", "value": "https://hsduarte.com", "inline": true},
-                {"name": "Duration", "value": "$DURATION", "inline": true},
-                {"name": "Workflow", "value": "$RUN_URL", "inline": false}
-              ]
-            }
-          ]
-        }
+        PAYLOAD=$(jq -nc \
+          --arg title "$TITLE" \
+          --arg desc "$DESC" \
+          --arg timestamp "$TIMESTAMP" \
+          --arg repo "$REPO" \
+          --arg branch "$BRANCH" \
+          --arg commit "$SHORT_SHA" \
+          --arg actor "$ACTOR" \
+          --arg url "https://hsduarte.com" \
+          --arg duration "$DURATION" \
+          --arg run_url "$RUN_URL" \
+          --argjson color $COLOR \
+          '{embeds: [{title: $title, description: $desc, color: $color, timestamp: $timestamp, fields: [
+            {name: "Repository", value: $repo, inline: true},
+            {name: "Branch", value: $branch, inline: true},
+            {name: "Commit", value: $commit, inline: true},
+            {name: "Actor", value: $actor, inline: true},
+            {name: "URL", value: $url, inline: true},
+            {name: "Duration", value: $duration, inline: true},
+            {name: "Workflow", value: $run_url, inline: false}
+          ]}]}')
         curl -sS -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
