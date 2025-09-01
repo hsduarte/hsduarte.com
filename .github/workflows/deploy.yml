@@ -192,11 +192,11 @@ jobs:
         STATUS="${{ job.status }}"
         if [ "$STATUS" = "Success" ] || [ "$STATUS" = "success" ]; then
           COLOR=3066993   # green
-          TITLE="Deploy Succeeded - ${COMMIT_MSG:-$SHORT_SHA}"
+          TITLE="✅ Deploy Succeeded - ${COMMIT_MSG:-$SHORT_SHA} ✅"
           DESC="hsduarte.com is live"
         else
           COLOR=15158332  # red
-          TITLE="Deploy Failed - ${COMMIT_MSG:-$SHORT_SHA}"
+          TITLE="❌ Deploy Failed - ${COMMIT_MSG:-$SHORT_SHA} ❌"
           DESC="Investigate workflow logs"
         fi
 

@@ -43,3 +43,7 @@ Thumbs.db
 
 # Claude Code files
 .claude
+
+# Local secrets (do not commit)
+.secrets.local.md
+.env.local
