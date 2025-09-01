@@ -2,7 +2,7 @@
 .modern-apartment-page {
   position: relative;
   min-height: 100vh;
-  background: #ffffff;
+  background: #fff;
   color: #1a1a1a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -23,7 +23,7 @@
   --gray-400: #94a3b8;
   --gray-300: #cbd5e1;
   --gray-100: #f1f5f9;
-  --white: #ffffff;
+  --white: #fff;
 }
 
 // Dark theme variables
@@ -56,12 +56,12 @@
 .site-logo {
   height: 48px;
   width: auto;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 2px 8px #00000033);
   transition: all 0.3s ease;
   
   &:hover {
     transform: scale(1.05);
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 12px #0000004d);
   }
   
   @media (max-width: 768px) {
@@ -80,7 +80,7 @@
   border-radius: 50%;
   border: none;
   background: var(--white);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px #00000026;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,7 +90,7 @@
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px #00000033;
     color: var(--accent-blue);
   }
 
@@ -132,7 +132,7 @@
   border-radius: 50%;
   border: none;
   background: var(--white);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px #00000026;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +142,7 @@
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px #00000033;
     color: var(--accent-blue);
   }
 
@@ -173,7 +173,7 @@
   border-radius: 50%;
   border: none;
   background: var(--white);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px #00000026;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,7 +183,7 @@
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px #00000033;
     color: var(--accent-blue);
   }
 
@@ -227,21 +227,21 @@
   position: relative;
   z-index: 2;
   text-align: center;
-  color: white;
+  color: #fff;
   max-width: 800px;
   padding: 0 2rem;
 }
 
 .hero-badge {
   display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
+  background: #ffffff33;
   padding: 0.5rem 1.5rem;
   border-radius: 50px;
   font-size: 0.9rem;
   font-weight: 500;
   margin-bottom: 1rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #ffffff4d;
 }
 
 .hero-title {
@@ -289,7 +289,7 @@
   .stat-divider {
     width: 1px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.3);
+    background: #ffffff4d;
 
     @media (max-width: 768px) {
       display: none;
@@ -334,17 +334,17 @@
 }
 
 .info-card {
-  background: white;
+  background: #fff;
   padding: 3rem 2rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px #0000001a;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid #e2e8f0;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px #00000026;
   }
 
   .card-icon {
@@ -358,7 +358,7 @@
     margin: 0 auto 1.5rem;
 
     svg {
-      color: white;
+      color: #fff;
       width: 32px;
       height: 32px;
     }
@@ -381,7 +381,7 @@
 /* Modern Gallery */
 .modern-gallery {
   padding: 6rem 0;
-  background: white;
+  background: #fff;
 }
 
 .gallery-header {
@@ -405,7 +405,7 @@
   .gallery-counter {
     display: inline-block;
     background: #3b82f6;
-    color: white;
+    color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -502,7 +502,7 @@
   aspect-ratio: 4/3;
   cursor: pointer;
   transition: all 0.4s ease;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px #0000001a;
   animation: fadeInUp 0.6s ease forwards;
   opacity: 0;
   transform: translateY(30px);
@@ -521,7 +521,7 @@
 
   &:hover {
     transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 25px 60px #00000033;
 
     .gallery-overlay {
       opacity: 1;
@@ -537,7 +537,7 @@
   @media (max-width: 768px) {
     &:hover {
       transform: none;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px #0000001a;
     }
 
     &:active {
@@ -547,7 +547,7 @@
 
     .gallery-overlay {
       opacity: 0.9;
-      background: rgba(59, 130, 246, 0.8);
+      background: rgba(59 130 246 / 80%);
     }
 
     &:hover .gallery-overlay {
@@ -599,7 +599,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(59, 130, 246, 0.9);
+    background: rgba(59 130 246 / 90%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -856,7 +856,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.95);
+  background: #000000f2;
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -869,10 +869,10 @@
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
-  background: white;
+  background: #fff;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 30px 100px #00000080;
 }
 
 .lightbox-header {
@@ -889,7 +889,7 @@
     border-radius: 50%;
     border: none;
     background: #3b82f6;
-    color: white;
+    color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -965,7 +965,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: #fff;
   font-size: 1rem;
   z-index: 1;
   
@@ -975,9 +975,9 @@
     width: 20px;
     height: 20px;
     margin-left: 10px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid #ffffff4d;
     border-radius: 50%;
-    border-top-color: white;
+    border-top-color: #fff;
     animation: spin 1s ease-in-out infinite;
   }
 }
@@ -994,7 +994,7 @@
   height: 50px;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffffe6;
   color: #1a202c;
   cursor: pointer;
   display: flex;
@@ -1005,7 +1005,7 @@
   z-index: 10;
 
   &:hover:not(:disabled) {
-    background: white;
+    background: #fff;
     transform: translateY(-50%) scale(1.1);
   }
 
@@ -1088,10 +1088,10 @@
   }
 
   .gallery-item {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px #0000004d;
 
     &:hover {
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 25px 60px #00000066;
     }
 
     .image-container {
@@ -1128,7 +1128,7 @@
   .contact-card {
     background: #334155;
     border-color: #475569;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px #0000004d;
   }
 
   .contact-header {

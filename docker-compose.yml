@@ -3,6 +3,11 @@ services:
     build: .
     container_name: hsduarte-website
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    mem_limit: "512m"
+    cpus: "0.50"
     ports:
       - "4000:4000"
     environment:

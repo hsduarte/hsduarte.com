@@ -1,9 +1,9 @@
 <!-- Hero Section -->
-<section class="hero">
+<section class="hero" id="main">
   <!-- Logo -->
   <div class="logo-container">
-    <img *ngIf="!isDarkMode" src="assets/Logo/HsDNoBackBlue.png" alt="HSD Logo" class="site-logo">
-    <img *ngIf="isDarkMode" src="assets/Logo/HsDNoBackWhite.png" alt="HSD Logo" class="site-logo">
+    <img *ngIf="!isDarkMode" src="assets/Logo/HsDNoBackBlue.png" alt="HSD Logo" class="site-logo" loading="lazy" decoding="async">
+    <img *ngIf="isDarkMode" src="assets/Logo/HsDNoBackWhite.png" alt="HSD Logo" class="site-logo" loading="lazy" decoding="async">
   </div>
 
   <!-- Controls Container -->
@@ -33,6 +33,8 @@
             src="assets/profile.webp"
             class="hero__image"
             alt="Hugo Duarte - Full-Stack Developer"
+            decoding="async"
+            fetchpriority="high"
           />
         </div>
       </div>

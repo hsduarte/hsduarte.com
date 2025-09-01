@@ -92,21 +92,54 @@ jobs:
             sudo docker-compose down || true
           fi
           
+          # Capture currently running image (for rollback)
+          PREV_IMAGE_ID=$(sudo docker inspect -f '{{.Image}}' hsduarte-website 2>/dev/null || true)
+          if [ -n "$PREV_IMAGE_ID" ]; then
+            echo -e "${YELLOW}[INFO]${NC} Previous image: $PREV_IMAGE_ID"
+            sudo mkdir -p /opt/hsduarte/backup-images
+            sudo docker image save -o /opt/hsduarte/backup-images/prev-$(date +%Y%m%d_%H%M%S).tar $PREV_IMAGE_ID || true
+          fi
+
           # Build and start new containers
           echo -e "${GREEN}[INFO]${NC} Building and starting services..."
           sudo docker-compose build --no-cache --pull
           sudo docker-compose up -d
           
-          # Wait for services to be ready
+          # Wait for services to be ready and check health endpoint
           echo -e "${GREEN}[INFO]${NC} Waiting for services to start..."
-          sleep 10
-          
-          # Health check
-          if curl -f -s http://localhost:4000 > /dev/null; then
-            echo -e "${GREEN}[SUCCESS]${NC} Application is running!"
+          for i in {1..10}; do
+            if curl -f -s http://localhost:4000/_health > /dev/null; then
+              HEALTH_OK=1
+              break
+            fi
+            sleep 3
+          done
+
+          if [ "${HEALTH_OK:-0}" -eq 1 ]; then
+            echo -e "${GREEN}[SUCCESS]${NC} Application is healthy!"
           else
-            echo -e "${RED}[ERROR]${NC} Application health check failed!"
-            sudo docker-compose logs
+            echo -e "${RED}[ERROR]${NC} Health check failed. Rolling back..."
+            # Stop new deployment
+            sudo docker-compose down || true
+            # Restore previous image if available
+            if [ -n "$PREV_IMAGE_ID" ]; then
+              echo -e "${YELLOW}[INFO]${NC} Restoring previous container..."
+              sudo docker network create hsduarte_hsduarte-network || true
+              sudo docker rm -f hsduarte-website || true
+              sudo docker run -d --name hsduarte-website \
+                --restart unless-stopped \
+                --network hsduarte_hsduarte-network \
+                -p 4000:4000 $PREV_IMAGE_ID
+              # Verify previous comes back
+              sleep 5
+              if curl -f -s http://localhost:4000/_health > /dev/null; then
+                echo -e "${GREEN}[SUCCESS]${NC} Rollback succeeded."
+              else
+                echo -e "${RED}[ERROR]${NC} Rollback failed. Manual intervention required."
+              fi
+            else
+              echo -e "${YELLOW}[WARN]${NC} No previous image to roll back to."
+            fi
             exit 1
           fi
           

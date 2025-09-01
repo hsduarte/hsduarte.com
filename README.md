@@ -5,7 +5,6 @@
   ![Angular](https://img.shields.io/badge/Angular-20.2-DD0031?style=for-the-badge&logo=angular&logoColor=white)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
   ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
-  ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Deployed-222222?style=for-the-badge&logo=github&logoColor=white)
 </div>
 
 ---
@@ -46,7 +45,7 @@
 | **Styling** | ![SCSS](https://img.shields.io/badge/-SCSS-CC6699?logo=sass&logoColor=white) ![CSS3](https://img.shields.io/badge/-CSS3-1572B6?logo=css3&logoColor=white) |
 | **Icons** | ![Material Design](https://img.shields.io/badge/-Material%20Symbols-757575?logo=material-design&logoColor=white) |
 | **Build Tools** | ![Angular CLI](https://img.shields.io/badge/-Angular%20CLI-DD0031?logo=angular&logoColor=white) |
-| **Deployment** | ![GitHub Pages](https://img.shields.io/badge/-GitHub%20Pages-222222?logo=github&logoColor=white) |
+| **Deployment** | Docker, Hetzner, Nginx + Certbot |
 
 </div>
 

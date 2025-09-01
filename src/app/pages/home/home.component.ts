@@ -1,7 +1,8 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ThemeService } from '../../services/theme.service';
 import { Subscription } from 'rxjs';
+import { SeoService } from '../../services/seo.service';
 
 @Component({
   selector: 'app-home',
@@ -98,7 +99,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private themeService: ThemeService
+    @Inject(DOCUMENT) private document: Document,
+    private themeService: ThemeService,
+    private seo: SeoService
   ) {}
 
   ngOnInit() {
@@ -112,6 +115,25 @@ export class HomeComponent implements OnInit, OnDestroy {
       const savedLanguage = localStorage.getItem('language');
       this.currentLanguage = savedLanguage || 'en';
     }
+
+    // SEO for home
+    this.seo.setTitle('Hugo Duarte — Full‑Stack Developer');
+    this.seo.setDescription('Portfolio showcasing Java, Kotlin, Angular, cloud and DevOps projects in Porto, Portugal.');
+    this.seo.setCanonical('https://hsduarte.com/');
+    this.seo.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      'name': 'Hugo Duarte',
+      'jobTitle': 'Full-Stack Developer',
+      'url': 'https://hsduarte.com',
+      'image': 'https://hsduarte.com/assets/profile.webp',
+      'sameAs': [
+        'https://github.com/hsduarte',
+        'https://www.linkedin.com/in/hsduarte/',
+        'https://twitter.com/HsDuarte'
+      ],
+      'address': { '@type': 'PostalAddress', 'addressLocality': 'Porto', 'addressCountry': 'PT' }
+    });
   }
 
   ngOnDestroy() {
@@ -176,6 +198,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('language', this.currentLanguage);
     }
+
+    // Update document lang
+    this.document.documentElement.lang = this.currentLanguage;
   }
 
   // Getter for the language button text

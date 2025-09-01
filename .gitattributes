@@ -1,0 +1,8 @@
+# Exclude the large demo stylesheet from language statistics
+src/app/pages/apartment/apartment.component.scss linguist-vendored
+
+# Optionally exclude all component styles from stats (uncomment if desired)
+# src/app/**/*.scss linguist-vendored
+
+# Treat built artifacts as generated if ever committed (not typical here)
+dist/** linguist-generated
