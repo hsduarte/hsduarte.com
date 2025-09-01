@@ -45,6 +45,7 @@ jobs:
          --exclude=.vscode \
          --exclude=*.md \
          dist/ \
+         tsconfig*.json \
          src/ \
          server.ts \
          package.json \
