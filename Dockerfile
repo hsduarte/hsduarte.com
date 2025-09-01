@@ -10,8 +10,10 @@ COPY package.json package-lock.json angular.json tsconfig*.json ./
 # Install dependencies (including devDependencies for build)
 RUN npm install
 
-# Copy remaining source code
-COPY . .
+# Copy only the necessary source files
+# Avoid relying on wildcard context when .dockerignore might exclude files
+COPY src ./src
+COPY server.ts ./server.ts
 
 # Build the application
 RUN npm run build
