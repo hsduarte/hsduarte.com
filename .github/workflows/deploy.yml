@@ -90,7 +90,7 @@ jobs:
           
           # Build and start new containers
           echo -e "${GREEN}[INFO]${NC} Building and starting services..."
-          sudo docker-compose build --no-cache
+          sudo docker-compose build --no-cache --pull
           sudo docker-compose up -d
           
           # Wait for services to be ready
