@@ -4,6 +4,9 @@ services:
     container_name: prometheus
     network_mode: host
     restart: unless-stopped
+    environment:
+      - METRICS_USER=${PROMETHEUS_BASIC_USER}
+      - METRICS_PASSWORD=${PROMETHEUS_BASIC_PASSWORD}
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/data/prometheus:/prometheus

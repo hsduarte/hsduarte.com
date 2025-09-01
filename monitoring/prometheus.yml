@@ -6,6 +6,9 @@ scrape_configs:
   - job_name: 'hsduarte-app'
     scheme: http
     metrics_path: /metrics
+    basic_auth:
+      username: '${METRICS_USER}'
+      password: '${METRICS_PASSWORD}'
     static_configs:
       - targets: ['127.0.0.1:4000', '127.0.0.1:4001']
 
