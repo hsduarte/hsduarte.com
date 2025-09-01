@@ -59,6 +59,24 @@ export function app() {
     registers: [register]
   }) : null;
 
+  // Ensure metrics are visible even before traffic: pre-register/seed series
+  if (PromClient && register && httpRequestCounter && httpRequestDuration) {
+    try {
+      const getMetric = (register as any).getSingleMetric?.bind(register);
+      if (getMetric && !getMetric('http_requests_total')) {
+        (register as any).registerMetric?.(httpRequestCounter);
+      }
+      if (getMetric && !getMetric('http_request_duration_seconds')) {
+        (register as any).registerMetric?.(httpRequestDuration);
+      }
+    } catch {}
+    try {
+      // Initialize common labelsets with zero so Prometheus discovers the metrics
+      (httpRequestCounter as any).labels('GET', '/_health', '200').inc(0);
+      (httpRequestDuration as any).labels('GET', '/_health', '200').observe(0);
+    } catch {}
+  }
+
   // Per-request timing + request-id propagation
   fastify.addHook('onRequest', async (request, reply) => {
     const reqId = (request.id as string) || randomUUID();

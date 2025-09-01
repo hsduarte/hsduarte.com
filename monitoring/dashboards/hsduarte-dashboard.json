@@ -44,7 +44,7 @@
       "targets": [
         {
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "expr": "up{job=\"hsduarte-app\"}",
+          "expr": "max(up{job=\"hsduarte-app\"})",
           "refId": "A"
         }
       ],
