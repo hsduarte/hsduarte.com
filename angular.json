@@ -33,7 +33,11 @@
             "prerender": true,
             "ssr": {
               "entry": "server.ts"
-            }
+            },
+            "allowedCommonJsDependencies": [
+              "fastify",
+              "@fastify/static"
+            ]
           },
           "configurations": {
             "production": {
