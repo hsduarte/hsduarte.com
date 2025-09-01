@@ -42,13 +42,15 @@ jobs:
          --exclude=.git \
          --exclude=.github \
          --exclude=.angular \
-         --exclude=src \
          --exclude=.vscode \
          --exclude=*.md \
          dist/ \
+         src/ \
+         server.ts \
          package.json \
          package-lock.json \
          angular.json \
+         .dockerignore \
          Dockerfile \
          docker-compose.yml \
          nginx.conf
