@@ -2,91 +2,129 @@ name: Deploy to Hetzner Server
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ master, main ]
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-      - name: Add server to known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+    - name: Install dependencies
+      run: npm install
 
-      - name: Create deployment archive
-        run: |
-          tar -czf deploy.tar.gz \
-            --exclude=node_modules \
-            --exclude=.git \
-            --exclude=.github \
-            --exclude=.angular \
-            --exclude=.vscode \
-            --exclude=*.md \
-            dist/ \
-            package.json \
-            package-lock.json \
-            angular.json \
-            Dockerfile \
-            docker-compose.yml \
-            nginx.conf
+    - name: Build application
+      run: npm run build:prod
 
-      - name: Upload files to server
-        run: scp -o StrictHostKeyChecking=no deploy.tar.gz \
-          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/hsduarte-deploy.tar.gz
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy on server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            set -e
-            GREEN='\033[0;32m'
-            YELLOW='\033[1;33m'
-            RED='\033[0;31m'
-            NC='\033[0m'
+    - name: Add server to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-            echo -e "${GREEN}[INFO]${NC} Starting deployment..."
+    - name: Create deployment archive
+      run: |
+        tar -czf deploy.tar.gz \
+         --exclude=node_modules \
+         --exclude=.git \
+         --exclude=.github \
+         --exclude=.angular \
+         --exclude=src \
+         --exclude=.vscode \
+         --exclude=*.md \
+         dist/ \
+         package.json \
+         package-lock.json \
+         angular.json \
+         Dockerfile \
+         docker-compose.yml \
+         nginx.conf
 
-            sudo mkdir -p /opt/hsduarte
-            cd /opt/hsduarte
+    - name: Upload files to server
+      run: |
+        scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/hsduarte-deploy.tar.gz
 
-            # Backup
-            if [ -d "/opt/hsduarte/dist" ]; then
-              echo -e "${YELLOW}[INFO]${NC} Creating backup..."
-              sudo cp -r /opt/hsduarte /opt/hsduarte.backup.$(date +%Y%m%d_%H%M%S)
-            fi
+    - name: Deploy on server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          set -e
+          
+          # Colors for output
+          GREEN='\033[0;32m'
+          YELLOW='\033[1;33m'
+          NC='\033[0m'
+          
+          echo -e "${GREEN}[INFO]${NC} Starting deployment..."
+          
+          # Create backup of current deployment
+          if [ -d "/opt/hsduarte" ]; then
+            echo -e "${YELLOW}[INFO]${NC} Creating backup..."
+            sudo cp -r /opt/hsduarte /opt/hsduarte.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Create application directory
+          sudo mkdir -p /opt/hsduarte
+          cd /opt/hsduarte
+          
+          # Extract new files
+          echo -e "${GREEN}[INFO]${NC} Extracting files..."
+          sudo tar -xzf /tmp/hsduarte-deploy.tar.gz
+          
+          # Stop existing containers
+          echo -e "${YELLOW}[INFO]${NC} Stopping existing services..."
+          if [ -f docker-compose.yml ]; then
+            sudo docker-compose down || true
+          fi
+          
+          # Build and start new containers
+          echo -e "${GREEN}[INFO]${NC} Building and starting services..."
+          sudo docker-compose build --no-cache --pull
+          sudo docker-compose up -d
+          
+          # Wait for services to be ready
+          echo -e "${GREEN}[INFO]${NC} Waiting for services to start..."
+          sleep 10
+          
+          # Health check
+          if curl -f -s http://localhost:4000 > /dev/null; then
+            echo -e "${GREEN}[SUCCESS]${NC} Application is running!"
+          else
+            echo -e "${RED}[ERROR]${NC} Application health check failed!"
+            sudo docker-compose logs
+            exit 1
+          fi
+          
+          # Clean up
+          rm -f /tmp/hsduarte-deploy.tar.gz
+          sudo docker system prune -f
+          
+          # Keep only last 3 backups
+          sudo find /opt -name "hsduarte.backup.*" -type d | sort | head -n -3 | sudo xargs rm -rf
+          
+          echo -e "${GREEN}[SUCCESS]${NC} Deployment completed successfully!"
+        EOF
 
-            echo -e "${GREEN}[INFO]${NC} Extracting files..."
-            sudo tar -xzf /tmp/hsduarte-deploy.tar.gz -C /opt/hsduarte
-            rm -f /tmp/hsduarte-deploy.tar.gz
-
-            echo -e "${YELLOW}[INFO]${NC} Stopping existing services..."
-            sudo docker compose down || true
-
-            echo -e "${GREEN}[INFO]${NC} Building and starting services..."
-            sudo docker compose up -d --build
-
-            echo -e "${GREEN}[INFO]${NC} Cleaning up..."
-            sudo docker system prune -f
-
-            echo -e "${GREEN}[INFO]${NC} Waiting for health check..."
-            sleep 10
-            if curl -f -s http://localhost:4000 > /dev/null; then
-              echo -e "${GREEN}[SUCCESS]${NC} Application is running!"
-            else
-              echo -e "${RED}[ERROR]${NC} Health check failed!"
-              sudo docker compose logs
-              exit 1
-            fi
-
-            sudo find /opt -name "hsduarte.backup.*" -type d | sort | head -n -3 | sudo xargs rm -rf
-            echo -e "${GREEN}[SUCCESS]${NC} Deployment completed!"
-          EOF
+    - name: Verify deployment
+      run: |
+        echo "🚀 Deployment completed!"
+        echo "🌐 Site should be available at: https://${{ secrets.SERVER_HOST }}"
+        
+        # Optional: Send notification
+        if [ "${{ secrets.DISCORD_WEBHOOK }}" != "" ]; then
+          curl -H "Content-Type: application/json" \
+            -d '{"content": "✅ hsduarte.com deployed successfully to Hetzner server!"}' \
+            "${{ secrets.DISCORD_WEBHOOK }}" || true
+        fi
