@@ -60,7 +60,7 @@ jobs:
       run: |
         scp -o StrictHostKeyChecking=no deploy.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/hsduarte-deploy.tar.gz
 
-    - name: Deploy on server
+    - name: Deploy on server (blue/green)
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
           set -e
@@ -92,56 +92,45 @@ jobs:
             sudo docker-compose down || true
           fi
           
-          # Capture currently running image (for rollback)
-          PREV_IMAGE_ID=$(sudo docker inspect -f '{{.Image}}' hsduarte-website 2>/dev/null || true)
-          if [ -n "$PREV_IMAGE_ID" ]; then
-            echo -e "${YELLOW}[INFO]${NC} Previous image: $PREV_IMAGE_ID"
-            sudo mkdir -p /opt/hsduarte/backup-images
-            sudo docker image save -o /opt/hsduarte/backup-images/prev-$(date +%Y%m%d_%H%M%S).tar $PREV_IMAGE_ID || true
-          fi
+          # Determine current upstream port from nginx
+          CUR_PORT=$(grep -R "proxy_pass http://127.0.0.1:" -ho /etc/nginx/sites-enabled /etc/nginx/sites-available 2>/dev/null | head -n1 | sed -E 's/.*:(\d+).*/\1/' || echo 4000)
+          if [ -z "$CUR_PORT" ]; then CUR_PORT=4000; fi
+          if [ "$CUR_PORT" = "4000" ]; then NEXT_PORT=4001; else NEXT_PORT=4000; fi
+          echo -e "${GREEN}[INFO]${NC} Current port: $CUR_PORT, Next port: $NEXT_PORT"
 
-          # Build and start new containers
-          echo -e "${GREEN}[INFO]${NC} Building and starting services..."
-          sudo docker-compose build --no-cache --pull
-          sudo docker-compose up -d
-          
-          # Wait for services to be ready and check health endpoint
-          echo -e "${GREEN}[INFO]${NC} Waiting for services to start..."
-          for i in {1..10}; do
-            if curl -f -s http://localhost:4000/_health > /dev/null; then
+          # Build and start new deployment on NEXT_PORT using separate project name
+          echo -e "${GREEN}[INFO]${NC} Building image..."
+          APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose build
+          echo -e "${GREEN}[INFO]${NC} Starting new instance on port $NEXT_PORT..."
+          APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose up -d
+
+          # Health check new instance
+          echo -e "${GREEN}[INFO]${NC} Checking health on :$NEXT_PORT..."
+          for i in {1..15}; do
+            if curl -f -s http://localhost:$NEXT_PORT/_health > /dev/null; then
               HEALTH_OK=1
               break
             fi
-            sleep 3
+            sleep 2
           done
 
-          if [ "${HEALTH_OK:-0}" -eq 1 ]; then
-            echo -e "${GREEN}[SUCCESS]${NC} Application is healthy!"
-          else
-            echo -e "${RED}[ERROR]${NC} Health check failed. Rolling back..."
-            # Stop new deployment
-            sudo docker-compose down || true
-            # Restore previous image if available
-            if [ -n "$PREV_IMAGE_ID" ]; then
-              echo -e "${YELLOW}[INFO]${NC} Restoring previous container..."
-              sudo docker network create hsduarte_hsduarte-network || true
-              sudo docker rm -f hsduarte-website || true
-              sudo docker run -d --name hsduarte-website \
-                --restart unless-stopped \
-                --network hsduarte_hsduarte-network \
-                -p 4000:4000 $PREV_IMAGE_ID
-              # Verify previous comes back
-              sleep 5
-              if curl -f -s http://localhost:4000/_health > /dev/null; then
-                echo -e "${GREEN}[SUCCESS]${NC} Rollback succeeded."
-              else
-                echo -e "${RED}[ERROR]${NC} Rollback failed. Manual intervention required."
-              fi
-            else
-              echo -e "${YELLOW}[WARN]${NC} No previous image to roll back to."
-            fi
+          if [ "${HEALTH_OK:-0}" -ne 1 ]; then
+            echo -e "${RED}[ERROR]${NC} New instance unhealthy. Keeping current."
+            APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose logs --no-color || true
+            APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose down || true
             exit 1
           fi
+
+          # Switch nginx upstream to NEXT_PORT
+          echo -e "${GREEN}[INFO]${NC} Switching nginx to port $NEXT_PORT..."
+          sudo cp /etc/nginx/sites-available/hsduarte.com /etc/nginx/sites-available/hsduarte.com.bak.$(date +%Y%m%d_%H%M%S)
+          sudo sed -i "s#proxy_pass http://127.0.0.1:$CUR_PORT#proxy_pass http://127.0.0.1:$NEXT_PORT#g" /etc/nginx/sites-available/hsduarte.com
+          sudo nginx -t && sudo systemctl reload nginx
+          echo -e "${GREEN}[INFO]${NC} Nginx reloaded. New upstream active."
+
+          # Stop old instance
+          echo -e "${GREEN}[INFO]${NC} Stopping old instance on port $CUR_PORT..."
+          APP_PORT=$CUR_PORT COMPOSE_PROJECT_NAME=hsduarte-$CUR_PORT sudo -E docker-compose down || true
           
           # Clean up
           rm -f /tmp/hsduarte-deploy.tar.gz

@@ -39,6 +39,7 @@ COPY --chown=angular:nodejs package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # Copy built application from builder stage
+# Default: copy built dist from builder stage
 COPY --from=builder --chown=angular:nodejs /app/dist ./dist
 
 # Switch to non-root user
@@ -52,5 +53,28 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4000/_health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Start the application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/hs-duarte/server/server.mjs"]
+
+# Runtime stage when dist is prebuilt in CI and provided in build context
+FROM node:20-alpine AS runtime-prebuilt
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN apk add --no-cache dumb-init \
+  && addgroup -g 1001 -S nodejs \
+  && adduser -S angular -u 1001
+
+COPY --chown=angular:nodejs package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copy prebuilt dist from context (no Angular build here)
+COPY --chown=angular:nodejs dist ./dist
+
+USER angular
+EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:4000/_health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
 ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "dist/hs-duarte/server/server.mjs"]

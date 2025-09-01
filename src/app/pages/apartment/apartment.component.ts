@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { Subscription } from 'rxjs';
+import { SeoService } from '../../services/seo.service';
 
 interface ApartmentImage {
   src: string;
@@ -35,7 +36,8 @@ export class ApartmentComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private themeService: ThemeService,
-    private router: Router
+    private router: Router,
+    private seo: SeoService
   ) { }
 
   ngOnInit() {
@@ -53,6 +55,29 @@ export class ApartmentComponent implements OnInit, OnDestroy {
     
     this.loadApartmentImages();
     this.setupIntersectionObserver();
+
+    // SEO for apartment page
+    this.seo.setTitle('Prelada Residence — T1 Apartment in Porto');
+    this.seo.setDescription('Modern T1 apartment in Porto with terrace and private garage. Close to metro and supermarket.');
+    this.seo.setCanonical('https://hsduarte.com/apartment');
+    this.seo.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'Apartment',
+      'name': 'Prelada Residence T1 Apartment',
+      'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': 'Travessa da Prelada 626',
+        'addressLocality': 'Porto',
+        'addressCountry': 'PT'
+      },
+      'image': this.images.map(i => `https://hsduarte.com/${i.src}`),
+      'offers': {
+        '@type': 'Offer',
+        'price': '950',
+        'priceCurrency': 'EUR',
+        'availability': 'https://schema.org/InStock'
+      }
+    });
   }
 
   ngOnDestroy() {
