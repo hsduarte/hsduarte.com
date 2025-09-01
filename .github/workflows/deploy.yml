@@ -13,6 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Record start time
+      run: |
+        date -u +%s > .deploy_start
+        echo "DEPLOY_START=$(cat .deploy_start)" >> $GITHUB_ENV
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -181,7 +186,11 @@ jobs:
         SHORT_SHA=${SHA::7}
         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         END_TS=$(date -u +%s)
-        START_TS=${DEPLOY_START:-$END_TS}
+        if [ -f ./.deploy_start ]; then
+          START_TS=$(cat ./.deploy_start)
+        else
+          START_TS=${DEPLOY_START:-$END_TS}
+        fi
         DUR=$((END_TS - START_TS))
         DUR_MIN=$((DUR / 60))
         DUR_SEC=$((DUR % 60))
