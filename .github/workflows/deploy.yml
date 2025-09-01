@@ -97,6 +97,16 @@ jobs:
           # Build and start new deployment on NEXT_PORT using separate project name
           echo -e "${GREEN}[INFO]${NC} Building image..."
           APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose build
+          
+          # Ensure NEXT_PORT is free (clean up any old instance on that port)
+          echo -e "${YELLOW}[INFO]${NC} Ensuring port $NEXT_PORT is free..."
+          APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose down || true
+          # Also remove any container explicitly bound to NEXT_PORT
+          CID=$(sudo docker ps -q --filter "publish=$NEXT_PORT")
+          if [ -n "$CID" ]; then
+            echo -e "${YELLOW}[INFO]${NC} Stopping container $CID on port $NEXT_PORT..."
+            sudo docker rm -f $CID || true
+          fi
           echo -e "${GREEN}[INFO]${NC} Starting new instance on port $NEXT_PORT..."
           APP_PORT=$NEXT_PORT COMPOSE_PROJECT_NAME=hsduarte-$NEXT_PORT sudo -E docker-compose up -d
 
