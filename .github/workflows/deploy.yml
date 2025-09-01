@@ -138,14 +138,66 @@ jobs:
           echo -e "${GREEN}[SUCCESS]${NC} Deployment completed successfully!"
         EOF
 
-    - name: Verify deployment
+    - name: Notify (Discord)
+      if: always()
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        REPO: ${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
+        SHA: ${{ github.sha }}
+        ACTOR: ${{ github.actor }}
+        RUN_ID: ${{ github.run_id }}
+        SERVER_URL: ${{ github.server_url }}
+        DEPLOY_START: ${{ env.DEPLOY_START }}
       run: |
         echo "🚀 Deployment completed!"
-        echo "🌐 Site should be available at: https://${{ secrets.SERVER_HOST }}"
+        echo "🌐 Site: https://hsduarte.com"
         
-        # Optional: Send notification
-        if [ "${{ secrets.DISCORD_WEBHOOK }}" != "" ]; then
-          curl -H "Content-Type: application/json" \
-            -d '{"content": "✅ hsduarte.com deployed successfully to Hetzner server!"}' \
-            "${{ secrets.DISCORD_WEBHOOK }}" || true
+        if [ -z "$DISCORD_WEBHOOK" ]; then
+          echo "No Discord webhook configured; skipping notification."
+          exit 0
         fi
+
+        STATUS="${{ job.status }}"
+        if [ "$STATUS" = "Success" ] || [ "$STATUS" = "success" ]; then
+          COLOR=3066993   # green
+          TITLE="✅ Deploy Succeeded"
+          DESC="hsduarte.com is live"
+        else
+          COLOR=15158332  # red
+          TITLE="❌ Deploy Failed"
+          DESC="Investigate workflow logs"
+        fi
+
+        SHORT_SHA=${SHA::7}
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        END_TS=$(date -u +%s)
+        START_TS=${DEPLOY_START:-$END_TS}
+        DUR=$((END_TS - START_TS))
+        DUR_MIN=$((DUR / 60))
+        DUR_SEC=$((DUR % 60))
+        DURATION="${DUR_MIN}m ${DUR_SEC}s"
+        RUN_URL="$SERVER_URL/$REPO/actions/runs/$RUN_ID"
+
+        read -r -d '' PAYLOAD <<JSON || true
+        {
+          "embeds": [
+            {
+              "title": "$TITLE",
+              "description": "$DESC",
+              "color": $COLOR,
+              "timestamp": "$TIMESTAMP",
+              "fields": [
+                {"name": "Repository", "value": "$REPO", "inline": true},
+                {"name": "Branch", "value": "${BRANCH}", "inline": true},
+                {"name": "Commit", "value": "$SHORT_SHA", "inline": true},
+                {"name": "Actor", "value": "$ACTOR", "inline": true},
+                {"name": "URL", "value": "https://hsduarte.com", "inline": true},
+                {"name": "Duration", "value": "$DURATION", "inline": true},
+                {"name": "Workflow", "value": "$RUN_URL", "inline": false}
+              ]
+            }
+          ]
+        }
+JSON
+        curl -sS -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK" || true
