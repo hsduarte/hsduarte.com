@@ -4,13 +4,13 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files first
-COPY package.json package-lock.json ./
+# Copy package files and Angular workspace config
+COPY package.json package-lock.json angular.json ./
 
 # Install dependencies (including devDependencies for build)
 RUN npm install
 
-# Copy all source code (including angular.json)
+# Copy remaining source code
 COPY . .
 
 # Build the application
