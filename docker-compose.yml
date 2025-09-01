@@ -16,6 +16,9 @@ services:
     image: nginx:alpine
     container_name: hsduarte-nginx
     restart: unless-stopped
+    # Optional: enable with `--profile proxy` to avoid port 80/443 conflicts
+    profiles:
+      - proxy
     ports:
       - "80:80"
       - "443:443"
