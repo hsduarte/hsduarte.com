@@ -1,0 +1,110 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Visits (last 30m)",
+      "gridPos": {"x": 0, "y": 0, "w": 8, "h": 4},
+      "targets": [
+        {
+          "expr": "sum(increase(http_requests_total[30m]))",
+          "legendFormat": "total",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["last"], "fields": ""},
+        "orientation": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Visits today",
+      "gridPos": {"x": 8, "y": 0, "w": 8, "h": 4},
+      "targets": [
+        {
+          "expr": "sum(increase(http_requests_total[1d]))",
+          "legendFormat": "today",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["last"], "fields": ""},
+        "orientation": "auto"
+      }
+    },
+    {
+      "type": "graph",
+      "title": "Requests per minute (last 24h)",
+      "gridPos": {"x": 0, "y": 4, "w": 16, "h": 8},
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[5m])) * 60",
+          "legendFormat": "rpm",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2,
+      "nullPointMode": "null as zero"
+    },
+    {
+      "type": "bargauge",
+      "title": "Requests by status (last 30m)",
+      "gridPos": {"x": 0, "y": 12, "w": 8, "h": 6},
+      "targets": [
+        {
+          "expr": "sum by (status) (increase(http_requests_total[30m]))",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Top routes (last 24h)",
+      "gridPos": {"x": 8, "y": 12, "w": 8, "h": 6},
+      "targets": [
+        {
+          "expr": "topk(10, sum by (route) (increase(http_requests_total[24h])))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ],
+      "options": {"showHeader": true}
+    },
+    {
+      "type": "graph",
+      "title": "HTTP latency p95 (last 24h)",
+      "gridPos": {"x": 0, "y": 18, "w": 16, "h": 8},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ],
+      "lines": true,
+      "fill": 2,
+      "linewidth": 2
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["hsduarte"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "HsDuarte — App Overview",
+  "version": 1
+}
+

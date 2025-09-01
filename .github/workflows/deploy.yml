@@ -18,6 +18,9 @@ jobs:
         date -u +%s > .deploy_start
         echo "DEPLOY_START=$(cat .deploy_start)" >> $GITHUB_ENV
 
+    - name: Read commit message
+      run: echo "COMMIT_MSG=$(git log -1 --pretty=%s)" >> $GITHUB_ENV
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -58,6 +61,8 @@ jobs:
          angular.json \
          .dockerignore \
          Dockerfile \
+         docker-compose.monitoring.yml \
+         monitoring/ \
          docker-compose.yml \
          nginx.conf
 
@@ -153,6 +158,18 @@ jobs:
           echo -e "${GREEN}[SUCCESS]${NC} Deployment completed successfully!"
         EOF
 
+    - name: Start monitoring stack (Prometheus + Grafana)
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          set -e
+          cd /opt/hsduarte
+          # Create data dirs
+          sudo mkdir -p monitoring/data/prometheus monitoring/data/grafana
+          # Start/refresh monitoring services (host networking)
+          sudo docker-compose -f docker-compose.monitoring.yml up -d
+          echo "Monitoring up: Prometheus :9090, Grafana :3000"
+        EOF
+
     - name: Notify (Discord)
       if: always()
       env:
@@ -175,11 +192,11 @@ jobs:
         STATUS="${{ job.status }}"
         if [ "$STATUS" = "Success" ] || [ "$STATUS" = "success" ]; then
           COLOR=3066993   # green
-          TITLE="✅ Deploy Succeeded"
+          TITLE="Deploy Succeeded - ${COMMIT_MSG:-$SHORT_SHA}"
           DESC="hsduarte.com is live"
         else
           COLOR=15158332  # red
-          TITLE="❌ Deploy Failed"
+          TITLE="Deploy Failed - ${COMMIT_MSG:-$SHORT_SHA}"
           DESC="Investigate workflow logs"
         fi
 
