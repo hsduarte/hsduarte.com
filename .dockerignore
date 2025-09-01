@@ -9,8 +9,11 @@ coverage
 .angular
 .vscode
 *.log
-dist
 docs
 .editorconfig
 karma.conf.js
 *.md
+Dockerfile
+docker-compose.yml
+setup-server.sh
+deploy.sh
