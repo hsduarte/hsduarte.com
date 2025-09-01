@@ -38,23 +38,18 @@ fi
 
 echo_info "Starting deployment to $USERNAME@$SERVER_IP"
 
-# Build the application locally
-echo_info "Building application..."
-npm run build
-
-# Create deployment archive
+# Create deployment archive (Docker will build on server)
 echo_info "Creating deployment archive..."
 tar -czf deploy.tar.gz \
     --exclude=node_modules \
     --exclude=.git \
     --exclude=.angular \
-    --exclude=dist/hs-duarte/browser \
-    dist/ \
-    package.json \
-    package-lock.json \
-    Dockerfile \
-    docker-compose.yml \
-    nginx.conf
+    --exclude=dist \
+    --exclude='*.log' \
+    --exclude=coverage \
+    --exclude=.nyc_output \
+    --exclude=docs \
+    .
 
 # Upload files to server
 echo_info "Uploading files to server..."
@@ -62,30 +57,39 @@ scp deploy.tar.gz $USERNAME@$SERVER_IP:/tmp/
 
 # Execute deployment on server
 echo_info "Executing deployment on server..."
-ssh $USERNAME@$SERVER_IP << EOF
+ssh $USERNAME@$SERVER_IP << 'EOF'
     set -e
     
-    # Create application directory
-    mkdir -p $REMOTE_DIR
-    cd $REMOTE_DIR
+    echo "[INFO] Starting deployment..."
     
-    # Extract files
-    tar -xzf /tmp/deploy.tar.gz
+    # Create backup
+    echo "[INFO] Creating backup..."
+    if [ -d "/opt/hsduarte" ]; then
+        sudo cp -r /opt/hsduarte /opt/hsduarte.backup.$(date +%Y%m%d_%H%M%S) || true
+    fi
+    
+    # Create application directory
+    echo "[INFO] Extracting files..."
+    sudo mkdir -p /opt/hsduarte
+    cd /opt/hsduarte
+    sudo tar -xzf /tmp/deploy.tar.gz
     
     # Stop existing containers
+    echo "[INFO] Stopping existing services..."
     if [ -f docker-compose.yml ]; then
-        docker-compose down || true
+        sudo docker-compose down || true
     fi
     
     # Build and start new containers
-    docker-compose build --no-cache
-    docker-compose up -d
+    echo "[INFO] Building and starting services..."
+    sudo docker-compose build --no-cache --pull
+    sudo docker-compose up -d
     
     # Clean up
     rm /tmp/deploy.tar.gz
-    docker system prune -f
+    sudo docker system prune -f || true
     
-    echo "Deployment completed successfully!"
+    echo "[INFO] Deployment completed successfully!"
 EOF
 
 # Clean up local files

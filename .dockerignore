@@ -12,7 +12,9 @@ coverage
 docs
 .editorconfig
 karma.conf.js
+README.md
 *.md
+!tsconfig*.json
 Dockerfile
 docker-compose.yml
 setup-server.sh
