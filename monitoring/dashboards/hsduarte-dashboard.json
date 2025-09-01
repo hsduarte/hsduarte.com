@@ -10,7 +10,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -47,7 +47,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "up{job=\"hsduarte-app\"}",
           "refId": "A"
@@ -59,7 +59,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -123,7 +123,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "sum(rate(prometheus_http_requests_total{job=\"prometheus\"}[5m])) by (handler)",
           "legendFormat": "{{handler}}",
@@ -136,7 +136,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -175,7 +175,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "prometheus_http_request_duration_seconds{quantile=\"0.5\"} * 1000",
           "refId": "A"
@@ -187,7 +187,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -251,7 +251,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "prometheus_tsdb_symbol_table_size_bytes",
           "legendFormat": "Symbol Table",
@@ -260,7 +260,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "prometheus_tsdb_head_series",
           "legendFormat": "Head Series",
@@ -273,7 +273,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -310,7 +310,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "prometheus_notifications_total",
           "refId": "A"
@@ -322,7 +322,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -385,7 +385,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "up",
           "legendFormat": "{{job}} - {{instance}}",
@@ -398,7 +398,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+"uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -462,7 +462,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+    "uid": "prometheus"
           },
           "expr": "prometheus_config_last_reload_success_timestamp_seconds",
           "legendFormat": "Last Reload Success",
