@@ -297,6 +297,20 @@
   }
 }
 
+.hero-size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .hero-location {
   display: flex;
   align-items: center;
@@ -1069,6 +1083,7 @@
   }
 
   .hero-title,
+  .hero-size,
   .hero-location {
     color: #f1f5f9;
   }
@@ -1226,6 +1241,7 @@
     margin-bottom: 1.5rem;
   }
 
+  .hero-size,
   .hero-location {
     font-size: 1rem;
   }
@@ -1411,6 +1427,7 @@
     font-size: 1.5rem;
   }
 
+  .hero-size,
   .hero-location {
     font-size: 0.9rem;
   }
