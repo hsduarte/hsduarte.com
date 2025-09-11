@@ -208,6 +208,8 @@ export function app() {
                             clientIp.startsWith('10.') ||
                             clientIp.startsWith('192.168.') ||
                             clientIp.startsWith('172.16.') ||
+                            clientIp.startsWith('172.17.') ||
+                            clientIp.startsWith('172.18.') ||
                             clientIp === '';
     
     if (!isPrivateNetwork) {
@@ -237,6 +239,8 @@ export function app() {
                             clientIp.startsWith('10.') ||
                             clientIp.startsWith('192.168.') ||
                             clientIp.startsWith('172.16.') ||
+                            clientIp.startsWith('172.17.') ||
+                            clientIp.startsWith('172.18.') ||
                             clientIp === '';
     
     if (!isPrivateNetwork) {
