@@ -3,10 +3,10 @@
 # Grafana setup script to ensure datasource is configured
 # This runs after Grafana starts to ensure the datasource is properly configured
 
-GRAFANA_URL="http://grafana:3000"
+GRAFANA_URL="http://127.0.0.1:3000"
 GRAFANA_USER="admin"
 GRAFANA_PASS="${GRAFANA_ADMIN_PASSWORD:-admin123}"
-PROMETHEUS_URL="http://prometheus:9090"
+PROMETHEUS_URL="http://127.0.0.1:9090"
 
 echo "Waiting for Grafana to start..."
 
