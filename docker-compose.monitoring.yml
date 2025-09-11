@@ -6,7 +6,7 @@ services:
       - "9090:9090"
     restart: unless-stopped
     networks:
-      - hsduarte-network
+      - hsduarte-4000-hsduarte-web
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/data/prometheus:/prometheus
@@ -24,7 +24,7 @@ services:
       - "3000:3000"
     restart: unless-stopped
     networks:
-      - hsduarte-network
+      - hsduarte-4000-hsduarte-web
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
@@ -46,7 +46,7 @@ services:
     image: curlimages/curl:latest
     container_name: grafana-setup
     networks:
-      - hsduarte-network
+      - hsduarte-4000-hsduarte-web
     depends_on:
       grafana:
         condition: service_healthy
@@ -58,6 +58,6 @@ services:
     restart: "no"
 
 networks:
-  hsduarte-network:
+  hsduarte-4000-hsduarte-web:
     external: true
 
