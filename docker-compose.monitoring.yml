@@ -2,8 +2,11 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    network_mode: host
+    ports:
+      - "9090:9090"
     restart: unless-stopped
+    networks:
+      - hsduarte-network
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/data/prometheus:/prometheus
@@ -17,8 +20,11 @@ services:
   grafana:
     image: grafana/grafana-oss:latest
     container_name: grafana
-    network_mode: host
+    ports:
+      - "3000:3000"
     restart: unless-stopped
+    networks:
+      - hsduarte-network
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
@@ -39,7 +45,8 @@ services:
   grafana-setup:
     image: curlimages/curl:latest
     container_name: grafana-setup
-    network_mode: host
+    networks:
+      - hsduarte-network
     depends_on:
       grafana:
         condition: service_healthy
@@ -49,4 +56,8 @@ services:
       - ./monitoring/setup-grafana.sh:/setup-grafana.sh:ro
     command: ["sh", "/setup-grafana.sh"]
     restart: "no"
+
+networks:
+  hsduarte-network:
+    external: true
 
