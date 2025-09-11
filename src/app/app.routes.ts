@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/apartment/apartment.component').then(m => m.ApartmentComponent)
   },
   {
+    path: 'analytics',
+    loadComponent: () => import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent)
+  },
+  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full'

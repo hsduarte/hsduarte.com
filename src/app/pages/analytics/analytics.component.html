@@ -1,0 +1,175 @@
+<div class="analytics-container">
+  <div class="header">
+    <h1>Website Analytics</h1>
+    <button mat-raised-button color="primary" (click)="refreshData()" [disabled]="loading">
+      {{ loading ? 'Loading...' : 'Refresh Data' }}
+    </button>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <mat-card class="error-card">
+      <mat-card-content>
+        {{ error }}
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <mat-tab-group>
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <div class="chart-grid">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Visits by Domain</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas 
+                    baseChart
+                    [data]="visitorsByDomainChart"
+                    [options]="pieChartOptions"
+                    [type]="pieChartType">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>Visits by Country</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas 
+                    baseChart
+                    [data]="visitorsByCountryChart"
+                    [options]="pieChartOptions"
+                    [type]="pieChartType">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <mat-card class="chart-card full-width">
+            <mat-card-header>
+              <mat-card-title>Top Visitor IPs (Last 20)</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="chart-container">
+                <canvas 
+                  baseChart
+                  [data]="visitorsByIpChart"
+                  [options]="barChartOptions"
+                  [type]="barChartType">
+                </canvas>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Detailed Table Tab -->
+      <mat-tab label="Detailed Data">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Visitor Details</mat-card-title>
+              <mat-card-subtitle>{{ visitorData.length }} unique visitors</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="table-container">
+                <table mat-table [dataSource]="visitorData" class="mat-elevation-z8">
+                  <ng-container matColumnDef="country">
+                    <th mat-header-cell *matHeaderCellDef>Country</th>
+                    <td mat-cell *matCellDef="let visitor" class="country-cell">
+                      <span class="flag">{{ visitor.flag }}</span>
+                      <span class="country-code">{{ visitor.country }}</span>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="ip">
+                    <th mat-header-cell *matHeaderCellDef>IP Address</th>
+                    <td mat-cell *matCellDef="let visitor">{{ visitor.ip }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="domain">
+                    <th mat-header-cell *matHeaderCellDef>Domain</th>
+                    <td mat-cell *matCellDef="let visitor">{{ visitor.domain }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="route">
+                    <th mat-header-cell *matHeaderCellDef>Route</th>
+                    <td mat-cell *matCellDef="let visitor">{{ visitor.route }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="visits">
+                    <th mat-header-cell *matHeaderCellDef>Visits</th>
+                    <td mat-cell *matCellDef="let visitor">{{ visitor.visits }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="userAgent">
+                    <th mat-header-cell *matHeaderCellDef>User Agent</th>
+                    <td mat-cell *matCellDef="let visitor" class="user-agent">{{ visitor.userAgent }}</td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="lastVisit">
+                    <th mat-header-cell *matHeaderCellDef>Last Visit</th>
+                    <td mat-cell *matCellDef="let visitor">{{ visitor.lastVisit | date:'short' }}</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- IP Analysis Tab -->
+      <mat-tab label="IP Analysis">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Visits per IP Address</mat-card-title>
+              <mat-card-subtitle>Detailed breakdown by domain and URL</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="ip-analysis">
+                <div *ngFor="let ipData of getIpAnalysis()" class="ip-section">
+                  <h3>{{ ipData.ip }} ({{ ipData.totalVisits }} visits)</h3>
+                  
+                  <div class="domain-breakdown">
+                    <div *ngFor="let domain of ipData.domains" class="domain-section">
+                      <h4>Domain: {{ domain.name }} ({{ domain.visits }} visits)</h4>
+                      
+                      <div class="route-list">
+                        <div *ngFor="let route of domain.routes" class="route-item">
+                          <span class="route">{{ route.path }}</span>
+                          <span class="visits-badge">{{ route.visits }} visits</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <mat-card>
+      <mat-card-content>
+        <div class="spinner-container">
+          <div class="loading-text">Loading analytics data...</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
