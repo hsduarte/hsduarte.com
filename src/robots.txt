@@ -1,3 +1,7 @@
+# Professional Portfolio Site - Hugo Duarte
+# Category: Information Technology, Software Development
+# Classification: Business/Professional Services
+# Industry: Technology
 User-agent: *
 Allow: /
 Allow: /t1-prelada
