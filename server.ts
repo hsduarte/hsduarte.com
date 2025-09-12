@@ -237,6 +237,11 @@ export function app() {
     const isPrivateNetwork = clientIp === '127.0.0.1' || 
                             clientIp === '::1' ||
                             clientIp.startsWith('10.') ||
+                            clientIp === '100.65.126.7' ||   // hsduarte server
+                            clientIp === '100.108.154.10' || // five9-hv212n50c0 (macOS)
+                            clientIp === '100.82.34.65' ||   // hsduarte-1 (raspberry pi)
+                            clientIp === '100.117.15.23' ||  // iphone171
+                            clientIp === '100.73.177.86' ||  // xiaomi-21051182g
                             clientIp.startsWith('192.168.') ||
                             clientIp.startsWith('172.16.') ||
                             clientIp.startsWith('172.17.') ||
