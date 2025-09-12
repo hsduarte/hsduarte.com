@@ -30,15 +30,48 @@ export function app() {
   try { Sentry = require('@sentry/node'); } catch {}
   try { PromClient = require('prom-client'); } catch {}
 
-  // Get country from CloudFlare headers or fallback to basic detection
-  const getCountryFromRequest = (request: any): string => {
-    // Handle local/private IPs
+  // GeoIP lookup using free service
+  const getCountryFromIP = async (ip: string): Promise<string> => {
+    try {
+      // Use ip-api.com free service (15 requests per minute limit)
+      const response = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.countryCode || 'UN';
+      }
+    } catch (error) {
+      // Fallback to basic IP range mapping if API fails
+      const ipRanges: { [key: string]: string } = {
+        '188.83': 'PT', '95.94': 'PT', '193.176': 'PT', '94.132': 'PT',
+        '85.': 'DE', '87.': 'DE', '46.': 'DE',
+        '82.': 'FR', '90.': 'FR', '88.': 'FR',
+        '93.': 'ES', '84.': 'ES',
+        '80.': 'GB', '86.': 'GB',
+        '8.8': 'US', '4.4': 'US', '1.1': 'US'
+      };
+      
+      for (const [range, country] of Object.entries(ipRanges)) {
+        if (ip.startsWith(range)) {
+          return country;
+        }
+      }
+    }
+    
+    return 'UN';
+  };
+
+  // Get country from CloudFlare headers or fallback to GeoIP API
+  const getCountryFromRequest = async (request: any): Promise<string> => {
+    // Handle local/private IPs and Tailscale domains
     const clientIp = request.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ||
                     request.headers['x-real-ip']?.toString() ||
                     request.ip || '';
+    const domain = request.headers.host?.toString() || '';
                     
     if (clientIp === '127.0.0.1' || clientIp === '::1' || clientIp.startsWith('192.168.') || 
-        clientIp.startsWith('10.') || clientIp.startsWith('172.16.') || clientIp === '' || clientIp === 'unknown') {
+        clientIp.startsWith('10.') || clientIp.startsWith('100.') || clientIp.startsWith('172.16.') || 
+        clientIp === '' || clientIp === 'unknown' ||
+        domain.includes('.tail') && domain.includes('.ts.net')) { // Tailscale domains
       return 'LOCAL';
     }
     
@@ -57,8 +90,8 @@ export function app() {
       return geoCountry;
     }
     
-    // Fallback to unknown
-    return 'UN';
+    // Fallback to GeoIP API lookup
+    return await getCountryFromIP(clientIp);
   };
 
   // Sentry (optional): initialize if DSN is present and package available
@@ -164,9 +197,9 @@ export function app() {
         httpRequestDuration.observe(labels as any, durationSec);
       }
       
-      // Track visitor-specific metrics (exclude health checks, metrics endpoint, and static assets)
+      // Track visitor-specific metrics (exclude health checks, metrics endpoint, analytics, and static assets)
       const isStaticAsset = route?.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|avif|bmp|tiff|pdf|zip|rar|tar|gz|mp4|mov|avi|mp3|wav|ogg)(\?.*)?$/i);
-      const isSystemEndpoint = route === '/_health' || route === '/metrics';
+      const isSystemEndpoint = route === '/_health' || route === '/metrics' || route?.startsWith('/analytics');
       
       // Filter out localhost, private IPs, and common bots
       const isLocalhost = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === 'localhost';
@@ -177,15 +210,28 @@ export function app() {
       const isBot = userAgent.toLowerCase().match(/bot|crawler|spider|scraper|monitor|pingdom|uptimerobot|googlebot|bingbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|slack|discord|curl|wget|postman|insomnia/);
       
       if (visitorMetrics && !isStaticAsset && !isSystemEndpoint && !isLocalhost && !isPrivateIP && !isBot) {
-        const country = getCountryFromRequest(request);
-        const timestamp = Date.now();
-        visitorMetrics.inc({
-          client_ip: clientIp,
-          domain: domain,
-          route: route || 'unknown',
-          user_agent: userAgent.slice(0, 50),
-          country: country,
-          timestamp: timestamp.toString()
+        // Use async country detection but don't block response
+        getCountryFromRequest(request).then(country => {
+          const timestamp = Date.now();
+          visitorMetrics.inc({
+            client_ip: clientIp,
+            domain: domain,
+            route: route || 'unknown',
+            user_agent: userAgent.slice(0, 50),
+            country: country,
+            timestamp: timestamp.toString()
+          });
+        }).catch(() => {
+          // Fallback to UN if country detection fails
+          const timestamp = Date.now();
+          visitorMetrics.inc({
+            client_ip: clientIp,
+            domain: domain,
+            route: route || 'unknown',
+            user_agent: userAgent.slice(0, 50),
+            country: 'UN',
+            timestamp: timestamp.toString()
+          });
         });
       }
     } catch {}

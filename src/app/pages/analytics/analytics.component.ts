@@ -288,16 +288,26 @@ export class AnalyticsComponent implements OnInit {
         const key = `${client_ip}-${domain}-${route}`;
         
         if (!visitors[key]) {
+          // Parse timestamp from metrics (Unix timestamp in milliseconds)
+          const timestamp = metric.labels['timestamp'] ? parseInt(metric.labels['timestamp']) : Date.now();
+          
           visitors[key] = {
             ip: client_ip,
             domain: domain,
             route: route,
             visits: 0,
             userAgent: user_agent,
-            lastVisit: new Date(),
+            lastVisit: new Date(timestamp),
             country: country,
             flag: this.getCountryFlag(country)
           };
+        } else {
+          // Update lastVisit if this is more recent
+          const timestamp = metric.labels['timestamp'] ? parseInt(metric.labels['timestamp']) : Date.now();
+          const visitTime = new Date(timestamp);
+          if (visitTime > visitors[key].lastVisit) {
+            visitors[key].lastVisit = visitTime;
+          }
         }
         
         visitors[key].visits += visits;
