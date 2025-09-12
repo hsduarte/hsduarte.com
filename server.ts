@@ -243,10 +243,13 @@ export function app() {
                     request.headers['x-real-ip']?.toString() ||
                     request.ip || '';
     
+    // Log IP detection for debugging (remove after fixing)
+    fastify.log.warn(`Analytics access attempt: clientIp=${clientIp}, x-forwarded-for=${request.headers['x-forwarded-for']}, x-real-ip=${request.headers['x-real-ip']}, request.ip=${request.ip}`);
+    
     const isPrivateNetwork = clientIp === '127.0.0.1' || 
                             clientIp === '::1' ||
                             clientIp.startsWith('10.') ||
-                            clientIp === '100.65.126.7' ||   // hsduarte server
+                            clientIp === '100.65.126.7' ||   // hsduarte server  
                             clientIp === '100.108.154.10' || // five9-hv212n50c0 (macOS)
                             clientIp === '100.82.34.65' ||   // hsduarte-1 (raspberry pi)
                             clientIp === '100.117.15.23' ||  // iphone171
@@ -258,8 +261,11 @@ export function app() {
                             clientIp === '';
     
     if (!isPrivateNetwork) {
+      fastify.log.warn(`Analytics access BLOCKED for IP: ${clientIp}`);
       return reply.code(404).type('text/plain').send('Not Found');
     }
+    
+    fastify.log.info(`Analytics access ALLOWED for IP: ${clientIp}`);
     
     // Continue to Angular SSR for authorized users
     const protocol = request.headers['x-forwarded-proto'] || 'http';
