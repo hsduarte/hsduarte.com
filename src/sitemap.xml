@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://hsduarte.com/</loc>
-    <lastmod>2025-09-01</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://hsduarte.com/assets/profile.webp</image:loc>
+      <image:caption>Hugo Duarte - Full Stack Developer Profile Photo</image:caption>
+      <image:title>Hugo Duarte</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://hsduarte.com/t1-prelada</loc>
-    <lastmod>2025-09-01</lastmod>
+    <lastmod>2024-12-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://hsduarte.com/assets/apartment/living-room.jpg</image:loc>
+      <image:caption>Modern T1 apartment living room in Porto</image:caption>
+      <image:title>Prelada Residence T1 Apartment</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hsduarte.com/assets/apartment/bedroom.jpg</image:loc>
+      <image:caption>Comfortable bedroom with natural light</image:caption>
+      <image:title>Apartment Bedroom</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hsduarte.com/assets/apartment/kitchen.jpg</image:loc>
+      <image:caption>Modern equipped kitchen</image:caption>
+      <image:title>Apartment Kitchen</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://hsduarte.com/assets/apartment/terrace.jpg</image:loc>
+      <image:caption>Private terrace with outdoor space</image:caption>
+      <image:title>Apartment Terrace</image:title>
+    </image:image>
   </url>
 </urlset>

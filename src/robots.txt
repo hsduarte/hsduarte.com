@@ -1,4 +1,34 @@
 User-agent: *
 Allow: /
+Allow: /t1-prelada
+Disallow: /analytics
 
+# Block common bot user-agents that shouldn't index the site
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+# Allow important search engines
+User-agent: Googlebot
+Allow: /
+Allow: /t1-prelada
+Disallow: /analytics
+
+User-agent: Bingbot
+Allow: /
+Allow: /t1-prelada
+Disallow: /analytics
+
+# Sitemap location
 Sitemap: https://hsduarte.com/sitemap.xml
+
+# Crawl-delay to be respectful
+Crawl-delay: 1

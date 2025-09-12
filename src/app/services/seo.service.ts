@@ -38,6 +38,29 @@ export class SeoService {
     this.renderer.setAttribute(link, 'href', url);
   }
 
+  setOpenGraphTags(config: {
+    url: string;
+    type?: string;
+    image?: string;
+    imageAlt?: string;
+    siteName?: string;
+  }) {
+    this.setMetaTag('og:url', config.url, true);
+    this.setMetaTag('og:type', config.type || 'website', true);
+    this.setMetaTag('og:site_name', config.siteName || 'Hugo Duarte', true);
+    
+    if (config.image) {
+      this.setMetaTag('og:image', config.image, true);
+      this.setMetaTag('twitter:image', config.image);
+      this.setMetaTag('twitter:card', 'summary_large_image');
+      
+      if (config.imageAlt) {
+        this.setMetaTag('og:image:alt', config.imageAlt, true);
+        this.setMetaTag('twitter:image:alt', config.imageAlt);
+      }
+    }
+  }
+
   setJsonLd(schema: object) {
     // Remove existing JSON-LD if present
     const prev = this.document.getElementById('json-ld-primary');

@@ -92,7 +92,7 @@ export function app() {
   const visitorMetrics = PromClient && register ? new PromClient.Counter({
     name: 'visitor_requests_total',
     help: 'Total number of visitor requests by IP and domain',
-    labelNames: ['client_ip', 'domain', 'route', 'user_agent', 'country'],
+    labelNames: ['client_ip', 'domain', 'route', 'user_agent', 'country', 'timestamp'],
     registers: [register]
   }) : null;
 
@@ -165,18 +165,27 @@ export function app() {
       }
       
       // Track visitor-specific metrics (exclude health checks, metrics endpoint, and static assets)
-      const isStaticAsset = route?.match(/\.(js|css|png|jpg|gif|svg|ico|woff|woff2|ttf|eot)$/);
+      const isStaticAsset = route?.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|avif|bmp|tiff|pdf|zip|rar|tar|gz|mp4|mov|avi|mp3|wav|ogg)(\?.*)?$/i);
       const isSystemEndpoint = route === '/_health' || route === '/metrics';
       
-      if (visitorMetrics && !isStaticAsset && !isSystemEndpoint) {
-        const userAgent = request.headers['user-agent']?.toString().slice(0, 50) || 'unknown';
+      // Filter out localhost, private IPs, and common bots
+      const isLocalhost = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === 'localhost';
+      const isPrivateIP = clientIp.startsWith('10.') || 
+                         clientIp.startsWith('192.168.') || 
+                         clientIp.match(/^172\.(1[6-9]|2[0-9]|3[0-1])\./);
+      const userAgent = request.headers['user-agent']?.toString() || '';
+      const isBot = userAgent.toLowerCase().match(/bot|crawler|spider|scraper|monitor|pingdom|uptimerobot|googlebot|bingbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|slack|discord|curl|wget|postman|insomnia/);
+      
+      if (visitorMetrics && !isStaticAsset && !isSystemEndpoint && !isLocalhost && !isPrivateIP && !isBot) {
         const country = getCountryFromRequest(request);
+        const timestamp = Date.now();
         visitorMetrics.inc({
           client_ip: clientIp,
           domain: domain,
           route: route || 'unknown',
-          user_agent: userAgent,
-          country: country
+          user_agent: userAgent.slice(0, 50),
+          country: country,
+          timestamp: timestamp.toString()
         });
       }
     } catch {}
@@ -279,6 +288,16 @@ export function app() {
     }
   });
 
+  // Serve robots.txt and sitemap.xml from root
+  fastify.get('/robots.txt', (request, reply) => {
+    return reply.sendFile('robots.txt', resolve(browserDistFolder));
+  });
+
+  fastify.get('/sitemap.xml', (request, reply) => {
+    reply.header('Content-Type', 'application/xml');
+    return reply.sendFile('sitemap.xml', resolve(browserDistFolder));
+  });
+
   // Register static file serving
   fastify.register(fastifyStatic, {
     root: browserDistFolder,
@@ -290,32 +309,44 @@ export function app() {
     }
   });
 
-  // Handle all routes with Angular SSR
+  // Define known routes that should be handled by Angular SSR  
+  const knownRoutes = ['/', '/t1-prelada', '/analytics'];
+  
+  // Handle known routes with Angular SSR
+  knownRoutes.forEach(route => {
+    fastify.get(route, async (request, reply) => {
+      const protocol = request.headers['x-forwarded-proto'] || 'http';
+      const { url, headers } = request.raw;
+      const fullUrl = `${protocol}://${headers?.host}${url}`;
+      
+      try {
+        const html = await commonEngine.render({
+          bootstrap,
+          documentFilePath: indexHtml,
+          url: fullUrl,
+          publicPath: browserDistFolder,
+          providers: [{ provide: APP_BASE_HREF, useValue: '/' }],
+        });
+        
+        reply.type('text/html').send(html);
+      } catch (err) {
+        reply.status(500).send('Internal Server Error');
+        fastify.log.error({ err }, 'Unhandled error while rendering');
+        if (sentryDsn && Sentry) {
+          Sentry.captureException(err, {
+            tags: { where: 'ssr' },
+            extra: { url: fullUrl, reqId: String(request.id) }
+          });
+        }
+      }
+    });
+  });
+
+  // Redirect all unknown routes to homepage
   fastify.setNotFoundHandler(async (request, reply) => {
     const protocol = request.headers['x-forwarded-proto'] || 'http';
-    const { url, headers } = request.raw;
-    const fullUrl = `${protocol}://${headers?.host}${url}`;
-    
-    try {
-      const html = await commonEngine.render({
-        bootstrap,
-        documentFilePath: indexHtml,
-        url: fullUrl,
-        publicPath: browserDistFolder,
-        providers: [{ provide: APP_BASE_HREF, useValue: '/' }],
-      });
-      
-      reply.type('text/html').send(html);
-    } catch (err) {
-      reply.status(500).send('Internal Server Error');
-      fastify.log.error({ err }, 'Unhandled error while rendering');
-      if (sentryDsn && Sentry) {
-        Sentry.captureException(err, {
-          tags: { where: 'ssr' },
-          extra: { url: fullUrl, reqId: String(request.id) }
-        });
-      }
-    }
+    const host = request.headers.host;
+    return reply.status(301).redirect(`${protocol}://${host}/`);
   });
 
   // Catch-all error handler to ensure reporting

@@ -15,6 +15,7 @@ export interface VisitorMetric extends PrometheusMetric {
     route: string;
     user_agent: string;
     country: string;
+    timestamp: string;
   };
 }
 

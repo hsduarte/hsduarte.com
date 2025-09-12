@@ -117,22 +117,63 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     // SEO for home
-    this.seo.setTitle('Hugo Duarte — Full‑Stack Developer');
-    this.seo.setDescription('Portfolio showcasing Java, Kotlin, Angular, cloud and DevOps projects in Porto, Portugal.');
+    this.seo.setTitle('Hugo Duarte — Full‑Stack Developer | Java, Kotlin, Angular & DevOps Expert in Porto');
+    this.seo.setDescription('Experienced Full-Stack Developer in Porto, Portugal. Specializing in Java, Kotlin, Angular, Spring Boot, cloud technologies, DevOps, and modern software engineering. Available for freelance and full-time opportunities.');
     this.seo.setCanonical('https://hsduarte.com/');
+    
+    // Add enhanced Open Graph tags
+    this.seo.setOpenGraphTags({
+      url: 'https://hsduarte.com/',
+      type: 'profile',
+      image: 'https://hsduarte.com/assets/profile.webp',
+      imageAlt: 'Hugo Duarte - Full Stack Developer',
+      siteName: 'Hugo Duarte Portfolio'
+    });
+    // Enhanced structured data for better search results
     this.seo.setJsonLd({
       '@context': 'https://schema.org',
       '@type': 'Person',
       'name': 'Hugo Duarte',
+      'alternateName': 'HsDuarte',
       'jobTitle': 'Full-Stack Developer',
+      'description': 'Experienced Full-Stack Developer specializing in Java, Kotlin, Angular, Spring Boot, cloud technologies, and DevOps',
       'url': 'https://hsduarte.com',
       'image': 'https://hsduarte.com/assets/profile.webp',
+      'email': 'mailto:hello@hsduarte.com',
+      'telephone': '+351-XXX-XXX-XXX',
+      'knowsAbout': [
+        'Java Programming',
+        'Kotlin Development', 
+        'Angular Framework',
+        'Spring Boot',
+        'DevOps',
+        'Cloud Computing',
+        'Kubernetes',
+        'TypeScript',
+        'JavaScript',
+        'Full Stack Development',
+        'Software Engineering',
+        'Web Development'
+      ],
       'sameAs': [
         'https://github.com/hsduarte',
         'https://www.linkedin.com/in/hsduarte/',
         'https://twitter.com/HsDuarte'
       ],
-      'address': { '@type': 'PostalAddress', 'addressLocality': 'Porto', 'addressCountry': 'PT' }
+      'worksFor': {
+        '@type': 'Organization',
+        'name': 'Five9'
+      },
+      'address': { 
+        '@type': 'PostalAddress', 
+        'addressLocality': 'Porto', 
+        'addressRegion': 'Porto District',
+        'addressCountry': 'PT' 
+      },
+      'nationality': {
+        '@type': 'Country',
+        'name': 'Portugal'
+      }
     });
   }
 

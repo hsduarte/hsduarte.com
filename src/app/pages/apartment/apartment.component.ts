@@ -59,7 +59,15 @@ export class ApartmentComponent implements OnInit, OnDestroy {
     // SEO for apartment page
     this.seo.setTitle('Prelada Residence — T1 Apartment in Porto');
     this.seo.setDescription('Modern T1 apartment in Porto with terrace and private garage. Close to metro and supermarket.');
-    this.seo.setCanonical('https://hsduarte.com/apartment');
+    this.seo.setCanonical('https://hsduarte.com/t1-prelada');
+    
+    // Add Open Graph meta tags for social media sharing
+    this.seo.setOpenGraphTags({
+      url: 'https://hsduarte.com/t1-prelada',
+      type: 'website',
+      image: 'https://hsduarte.com/assets/apartment/living-room.jpg',
+      imageAlt: 'Modern T1 apartment living room in Porto'
+    });
     this.seo.setJsonLd({
       '@context': 'https://schema.org',
       '@type': 'Apartment',
